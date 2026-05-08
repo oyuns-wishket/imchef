@@ -30,6 +30,9 @@ model Recipe {
   images      RecipeImage[]
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model RecipeIngredient {
@@ -40,6 +43,8 @@ model RecipeIngredient {
   order    Int    @default(0)
   recipeId String
   recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
 }
 
 model RecipeStep {
@@ -48,6 +53,8 @@ model RecipeStep {
   order    Int
   recipeId String
   recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
 }
 
 model RecipeImage {
@@ -56,4 +63,6 @@ model RecipeImage {
   order    Int    @default(0)
   recipeId String
   recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
 }
