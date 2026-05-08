@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import RecipeCard from "@/components/RecipeCard";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Recipe {
   id: string;
@@ -14,6 +16,7 @@ interface Recipe {
 }
 
 export default function Home() {
+  const { user } = useAuth();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,13 +31,23 @@ export default function Home() {
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-6 sm:py-10">
-      <div className="mb-6 sm:mb-10">
-        <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
-          레시피
-        </h1>
-        <p className="mt-1 text-sm text-stone-400">
-          모든 레시피를 둘러보세요
-        </p>
+      <div className="flex items-end justify-between mb-6 sm:mb-10">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+            레시피
+          </h1>
+          <p className="mt-1 text-sm text-stone-400">
+            모든 레시피를 둘러보세요
+          </p>
+        </div>
+        {user && (
+          <Link
+            href="/recipes/new"
+            className="text-sm text-stone-500 hover:text-stone-800 transition-colors"
+          >
+            + 등록
+          </Link>
+        )}
       </div>
 
       {loading ? (

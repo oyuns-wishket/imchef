@@ -2,28 +2,17 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-
-interface User {
-  id: string;
-  loginId: string;
-  nickname: string;
-}
+import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Header() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const { user, clearUser } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/auth/me")
-      .then((res) => res.json())
-      .then((data) => setUser(data.user));
-  }, []);
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    setUser(null);
+    clearUser();
     setMenuOpen(false);
     router.push("/");
     router.refresh();
@@ -44,12 +33,6 @@ export default function Header() {
         <nav className="hidden sm:flex items-center gap-3">
           {user ? (
             <>
-              <Link
-                href="/recipes/new"
-                className="text-sm text-stone-500 hover:text-stone-800 transition-colors"
-              >
-                새 레시피
-              </Link>
               <Link
                 href="/my-recipes"
                 className="text-sm text-stone-500 hover:text-stone-800 transition-colors"
@@ -95,13 +78,6 @@ export default function Header() {
           <div className="max-w-5xl mx-auto px-4 py-3 space-y-1">
             {user ? (
               <>
-                <Link
-                  href="/recipes/new"
-                  onClick={() => setMenuOpen(false)}
-                  className="block px-3 py-2.5 text-sm text-stone-600 hover:bg-stone-100 active:bg-stone-200 rounded-lg transition-colors"
-                >
-                  새 레시피
-                </Link>
                 <Link
                   href="/my-recipes"
                   onClick={() => setMenuOpen(false)}
