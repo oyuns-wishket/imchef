@@ -30,7 +30,7 @@ export default function RecipeCard({
     <Link href={`/recipes/${id}`} className="card group block">
       <div className="relative aspect-[4/3] bg-stone-100">
         {imageUrl ? (
-          <Image src={imageUrl} alt={title} fill className="object-cover" />
+          <Image src={imageUrl} alt={title} fill className="object-contain" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-stone-300">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">

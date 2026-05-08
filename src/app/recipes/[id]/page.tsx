@@ -67,7 +67,7 @@ export default function RecipeDetailPage() {
             src={recipe.images[imageIndex].url}
             alt={recipe.title}
             fill
-            className="object-cover"
+            className="object-contain"
           />
           {recipe.images.length > 1 && (
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">

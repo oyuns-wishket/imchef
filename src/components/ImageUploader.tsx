@@ -42,7 +42,7 @@ export default function ImageUploader({ images, onChange, maxImages = 3 }: Props
       <div className="flex gap-3 flex-wrap">
         {images.map((url, i) => (
           <div key={i} className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-stone-100 group">
-            <Image src={url} alt="" fill className="object-cover" />
+            <Image src={url} alt="" fill className="object-contain" />
             <button
               type="button"
               onClick={() => remove(i)}
