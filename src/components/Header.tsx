@@ -2,28 +2,17 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-
-interface User {
-  id: string;
-  loginId: string;
-  nickname: string;
-}
+import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Header() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const { user, clearUser } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/auth/me")
-      .then((res) => res.json())
-      .then((data) => setUser(data.user));
-  }, []);
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    setUser(null);
+    clearUser();
     setMenuOpen(false);
     router.push("/");
     router.refresh();

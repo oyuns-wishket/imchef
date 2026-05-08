@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import RecipeCard from "@/components/RecipeCard";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Recipe {
   id: string;
@@ -16,26 +17,32 @@ interface Recipe {
 
 export default function MyRecipesPage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function load() {
-      const meRes = await fetch("/api/auth/me");
-      const me = await meRes.json();
-
-      if (!me.user) {
-        router.push("/login");
-        return;
-      }
-
-      const res = await fetch(`/api/recipes?userId=${me.user.id}`);
-      const data = await res.json();
-      setRecipes(data);
-      setLoading(false);
+    if (authLoading) return;
+    if (!user) {
+      router.push("/login");
+      return;
     }
-    load();
-  }, [router]);
+
+    fetch(`/api/recipes?userId=${user.id}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setRecipes(data);
+        setLoading(false);
+      });
+  }, [user, authLoading, router]);
+
+  if (authLoading || loading) {
+    return (
+      <main className="max-w-5xl mx-auto px-4 py-6 sm:py-10">
+        <div className="text-sm text-stone-400">불러오는 중...</div>
+      </main>
+    );
+  }
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-6 sm:py-10">
@@ -48,9 +55,7 @@ export default function MyRecipesPage() {
         </p>
       </div>
 
-      {loading ? (
-        <div className="text-sm text-stone-400">불러오는 중...</div>
-      ) : recipes.length === 0 ? (
+      {recipes.length === 0 ? (
         <div className="text-center py-20">
           <p className="text-stone-400 text-sm mb-4">
             아직 등록한 레시피가 없습니다.

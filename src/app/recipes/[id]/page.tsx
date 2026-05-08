@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import PasswordModal from "@/components/PasswordModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Recipe {
   id: string;
@@ -28,8 +29,8 @@ const DIFFICULTY_LABELS: Record<string, string> = {
 export default function RecipeDetailPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
+  const { user: currentUser } = useAuth();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
-  const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
   const [modal, setModal] = useState<"edit" | "delete" | null>(null);
   const [imageIndex, setImageIndex] = useState(0);
 
@@ -37,10 +38,6 @@ export default function RecipeDetailPage() {
     fetch(`/api/recipes/${id}`)
       .then((r) => r.json())
       .then(setRecipe);
-
-    fetch("/api/auth/me")
-      .then((r) => r.json())
-      .then((data) => setCurrentUser(data.user));
   }, [id]);
 
   if (!recipe) {
