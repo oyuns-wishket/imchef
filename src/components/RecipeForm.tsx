@@ -140,7 +140,7 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label className="text-sm font-medium text-stone-700">인분</label>
           <div className="flex items-center gap-2 mt-1.5">
@@ -212,7 +212,7 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
         <p className="text-sm text-red-500">{error}</p>
       )}
 
-      <div className="flex justify-end gap-3 pt-4">
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-4">
         <button type="button" onClick={() => router.back()} className="btn-secondary">
           취소
         </button>

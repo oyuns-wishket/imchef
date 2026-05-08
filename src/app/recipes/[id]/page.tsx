@@ -45,7 +45,7 @@ export default function RecipeDetailPage() {
 
   if (!recipe) {
     return (
-      <main className="max-w-2xl mx-auto px-4 py-10">
+      <main className="max-w-2xl mx-auto px-4 py-6 sm:py-10">
         <div className="text-stone-400 text-sm">불러오는 중...</div>
       </main>
     );
@@ -62,10 +62,10 @@ export default function RecipeDetailPage() {
   }
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-10">
+    <main className="max-w-2xl mx-auto px-4 py-6 sm:py-10">
       {/* Images */}
       {recipe.images.length > 0 && (
-        <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-stone-100 mb-8">
+        <div className="relative w-full aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden bg-stone-100 mb-6 sm:mb-8">
           <Image
             src={recipe.images[imageIndex].url}
             alt={recipe.title}
@@ -89,8 +89,8 @@ export default function RecipeDetailPage() {
       )}
 
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-stone-900">{recipe.title}</h1>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-stone-900">{recipe.title}</h1>
         <div className="flex items-center gap-3 mt-2 text-sm text-stone-400">
           <span>{recipe.user.nickname}</span>
           <span>{new Date(recipe.createdAt).toLocaleDateString("ko-KR")}</span>
@@ -103,7 +103,7 @@ export default function RecipeDetailPage() {
       </div>
 
       {/* Meta */}
-      <div className="flex gap-6 py-4 border-y border-stone-100 mb-8 text-sm">
+      <div className="flex flex-wrap gap-4 sm:gap-6 py-4 border-y border-stone-100 mb-6 sm:mb-8 text-sm">
         <div>
           <span className="text-stone-400">인분</span>
           <p className="font-medium text-stone-800">{recipe.servings}인분</p>
@@ -123,7 +123,7 @@ export default function RecipeDetailPage() {
       </div>
 
       {/* Ingredients */}
-      <section className="mb-8">
+      <section className="mb-6 sm:mb-8">
         <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider mb-4">
           재료
         </h2>
@@ -143,7 +143,7 @@ export default function RecipeDetailPage() {
       </section>
 
       {/* Steps */}
-      <section className="mb-8">
+      <section className="mb-6 sm:mb-8">
         <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider mb-4">
           조리 순서
         </h2>
@@ -163,7 +163,7 @@ export default function RecipeDetailPage() {
 
       {/* Owner actions */}
       {isOwner && (
-        <div className="flex gap-3 pt-6 border-t border-stone-100">
+        <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-stone-100">
           <button
             onClick={() => setModal("edit")}
             className="btn-secondary"

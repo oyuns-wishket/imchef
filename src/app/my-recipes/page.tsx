@@ -38,9 +38,9 @@ export default function MyRecipesPage() {
   }, [router]);
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-10">
-      <div className="mb-10">
-        <h1 className="text-2xl font-bold text-stone-900 tracking-tight">
+    <main className="max-w-5xl mx-auto px-4 py-6 sm:py-10">
+      <div className="mb-6 sm:mb-10">
+        <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
           내 레시피
         </h1>
         <p className="mt-1 text-sm text-stone-400">

@@ -21,33 +21,50 @@
 @layer base {
   body {
     @apply bg-stone-50 text-stone-800 antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-stone-800 text-stone-50 px-5 py-2.5 rounded-lg text-sm font-medium
-           hover:bg-stone-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
+    @apply bg-stone-800 text-stone-50 px-5 py-3 rounded-lg text-sm font-medium
+           hover:bg-stone-700 active:scale-[0.97] transition-all disabled:opacity-40
+           disabled:cursor-not-allowed disabled:active:scale-100
+           sm:py-2.5;
   }
 
   .btn-secondary {
-    @apply bg-stone-200 text-stone-700 px-5 py-2.5 rounded-lg text-sm font-medium
-           hover:bg-stone-300 transition-colors;
+    @apply bg-stone-200 text-stone-700 px-5 py-3 rounded-lg text-sm font-medium
+           hover:bg-stone-300 active:scale-[0.97] transition-all
+           sm:py-2.5;
   }
 
   .btn-danger {
-    @apply bg-red-50 text-red-600 px-5 py-2.5 rounded-lg text-sm font-medium
-           hover:bg-red-100 transition-colors;
+    @apply bg-red-50 text-red-600 px-5 py-3 rounded-lg text-sm font-medium
+           hover:bg-red-100 active:scale-[0.97] transition-all
+           sm:py-2.5;
   }
 
   .input-field {
-    @apply w-full px-4 py-2.5 bg-white border border-stone-200 rounded-lg text-sm
+    @apply w-full px-4 py-3 bg-white border border-stone-200 rounded-lg text-base
            placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300
-           focus:border-transparent transition-all;
+           focus:border-transparent transition-all
+           sm:py-2.5 sm:text-sm;
   }
 
   .card {
-    @apply bg-white rounded-2xl border border-stone-100 overflow-hidden
-           hover:shadow-md transition-shadow duration-300;
+    @apply bg-white rounded-xl sm:rounded-2xl border border-stone-100 overflow-hidden
+           hover:shadow-md active:scale-[0.98] transition-all duration-300;
   }
 }

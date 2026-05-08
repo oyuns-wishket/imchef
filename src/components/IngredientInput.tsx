@@ -39,13 +39,13 @@ export default function IngredientInput({ ingredients, onChange }: Props) {
       </div>
 
       {ingredients.map((ing, i) => (
-        <div key={i} className="flex gap-2 items-start">
+        <div key={i} className="flex flex-wrap sm:flex-nowrap gap-2 items-start">
           <input
             type="text"
             value={ing.name}
             onChange={(e) => update(i, "name", e.target.value)}
             placeholder="재료명"
-            className="input-field flex-[2]"
+            className="input-field w-full sm:w-auto sm:flex-[2]"
           />
           <input
             type="text"
