@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { v4 as uuid } from "uuid";
 import { sessionOptions } from "@/lib/session";
 import { SessionData } from "@/lib/types";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   const session = await getIronSession<SessionData>(
@@ -42,6 +42,8 @@ export async function POST(req: NextRequest) {
   const ext = file.name.split(".").pop() || "jpg";
   const filename = `${uuid()}.${ext}`;
   const bytes = new Uint8Array(await file.arrayBuffer());
+
+  const supabase = getSupabase();
 
   const { error } = await supabase.storage
     .from("recipe-images")
