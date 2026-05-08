@@ -34,12 +34,6 @@ export default function Header() {
           {user ? (
             <>
               <Link
-                href="/recipes/new"
-                className="text-sm text-stone-500 hover:text-stone-800 transition-colors"
-              >
-                새 레시피
-              </Link>
-              <Link
                 href="/my-recipes"
                 className="text-sm text-stone-500 hover:text-stone-800 transition-colors"
               >
@@ -84,13 +78,6 @@ export default function Header() {
           <div className="max-w-5xl mx-auto px-4 py-3 space-y-1">
             {user ? (
               <>
-                <Link
-                  href="/recipes/new"
-                  onClick={() => setMenuOpen(false)}
-                  className="block px-3 py-2.5 text-sm text-stone-600 hover:bg-stone-100 active:bg-stone-200 rounded-lg transition-colors"
-                >
-                  새 레시피
-                </Link>
                 <Link
                   href="/my-recipes"
                   onClick={() => setMenuOpen(false)}

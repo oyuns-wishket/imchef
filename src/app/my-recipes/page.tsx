@@ -57,15 +57,9 @@ export default function MyRecipesPage() {
 
       {recipes.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-stone-400 text-sm mb-4">
+          <p className="text-stone-400 text-sm">
             아직 등록한 레시피가 없습니다.
           </p>
-          <button
-            onClick={() => router.push("/recipes/new")}
-            className="btn-primary"
-          >
-            첫 레시피 작성하기
-          </button>
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

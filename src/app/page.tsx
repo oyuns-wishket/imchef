@@ -41,8 +41,11 @@ export default function Home() {
           </p>
         </div>
         {user && (
-          <Link href="/recipes/new" className="btn-primary text-xs sm:text-sm">
-            레시피 등록
+          <Link
+            href="/recipes/new"
+            className="text-sm text-stone-500 hover:text-stone-800 transition-colors"
+          >
+            + 등록
           </Link>
         )}
       </div>
@@ -51,14 +54,9 @@ export default function Home() {
         <div className="text-sm text-stone-400">불러오는 중...</div>
       ) : recipes.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-stone-400 text-sm mb-4">
+          <p className="text-stone-400 text-sm">
             아직 등록된 레시피가 없습니다.
           </p>
-          {user && (
-            <Link href="/recipes/new" className="btn-primary">
-              첫 레시피 작성하기
-            </Link>
-          )}
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
