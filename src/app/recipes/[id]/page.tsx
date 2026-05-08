@@ -13,6 +13,7 @@ interface Recipe {
   servings: number;
   cookTime: number | null;
   difficulty: string;
+  referenceUrl: string | null;
   user: { id: string; nickname: string };
   ingredients: { id: string; name: string; amount: string; unit: string }[];
   steps: { id: string; content: string; order: number }[];
@@ -157,6 +158,26 @@ export default function RecipeDetailPage() {
           ))}
         </ol>
       </section>
+
+      {/* Reference Link */}
+      {recipe.referenceUrl && (
+        <section className="mb-6 sm:mb-8">
+          <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider mb-3">
+            참고 링크
+          </h2>
+          <a
+            href={recipe.referenceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-800 transition-colors break-all"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+            {recipe.referenceUrl}
+          </a>
+        </section>
+      )}
 
       {/* Owner actions */}
       {isOwner && (

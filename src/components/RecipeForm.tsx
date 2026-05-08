@@ -25,6 +25,7 @@ interface RecipeData {
   ingredients: Ingredient[];
   steps: Step[];
   imageUrls: string[];
+  referenceUrl: string;
 }
 
 interface Props {
@@ -54,6 +55,7 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
     initialData?.steps || [{ content: "" }]
   );
   const [imageUrls, setImageUrls] = useState<string[]>(initialData?.imageUrls || []);
+  const [referenceUrl, setReferenceUrl] = useState(initialData?.referenceUrl || "");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -88,6 +90,7 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
       ingredients: validIngredients,
       steps: validSteps,
       imageUrls,
+      referenceUrl: referenceUrl.trim() || null,
     };
 
     const url = isEditing ? `/api/recipes/${recipeId}` : "/api/recipes";
@@ -207,6 +210,21 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
       <hr className="border-stone-100" />
 
       <StepInput steps={steps} onChange={setSteps} />
+
+      <hr className="border-stone-100" />
+
+      <div>
+        <label className="text-sm font-medium text-stone-700">
+          참고 링크 <span className="text-stone-400 font-normal">(선택)</span>
+        </label>
+        <input
+          type="url"
+          value={referenceUrl}
+          onChange={(e) => setReferenceUrl(e.target.value)}
+          placeholder="https://example.com/recipe"
+          className="input-field mt-1.5"
+        />
+      </div>
 
       {error && (
         <p className="text-sm text-red-500">{error}</p>

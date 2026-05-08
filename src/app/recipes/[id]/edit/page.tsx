@@ -13,6 +13,7 @@ interface RecipeData {
   ingredients: { name: string; amount: string; unit: string }[];
   steps: { content: string }[];
   images: { url: string }[];
+  referenceUrl: string | null;
   userId: string;
 }
 
@@ -69,6 +70,7 @@ export default function EditRecipePage() {
           ingredients: recipe.ingredients,
           steps: recipe.steps,
           imageUrls: recipe.images.map((img) => img.url),
+          referenceUrl: recipe.referenceUrl || "",
         }}
       />
     </main>

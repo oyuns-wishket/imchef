@@ -51,7 +51,7 @@ export async function PUT(
   }
 
   const body = await req.json();
-  const { title, description, servings, cookTime, difficulty, ingredients, steps, imageUrls } = body;
+  const { title, description, servings, cookTime, difficulty, ingredients, steps, imageUrls, referenceUrl } = body;
 
   await prisma.$transaction([
     prisma.recipeIngredient.deleteMany({ where: { recipeId: id } }),
@@ -67,6 +67,7 @@ export async function PUT(
       servings: servings || 1,
       cookTime: cookTime || null,
       difficulty: difficulty || "normal",
+      referenceUrl: referenceUrl || null,
       ingredients: {
         create: ingredients.map(
           (ing: { name: string; amount: string; unit: string }, i: number) => ({

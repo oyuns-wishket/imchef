@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { title, description, servings, cookTime, difficulty, ingredients, steps, imageUrls } = body;
+  const { title, description, servings, cookTime, difficulty, ingredients, steps, imageUrls, referenceUrl } = body;
 
   if (!title || !ingredients?.length || !steps?.length) {
     return NextResponse.json(
@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
       servings: servings || 1,
       cookTime: cookTime || null,
       difficulty: difficulty || "normal",
+      referenceUrl: referenceUrl || null,
       userId: session.userId,
       ingredients: {
         create: ingredients.map(

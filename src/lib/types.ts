@@ -13,4 +13,5 @@ export interface RecipeFormData {
   ingredients: { name: string; amount: string; unit: string }[];
   steps: { content: string; order: number }[];
   imageUrls: string[];
+  referenceUrl: string;
 }

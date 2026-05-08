@@ -21,8 +21,9 @@ model Recipe {
   description String?
   servings    Int                @default(1)
   cookTime    Int?
-  difficulty  String             @default("normal")
-  userId      String
+  difficulty    String             @default("normal")
+  referenceUrl  String?
+  userId        String
   user        User               @relation(fields: [userId], references: [id])
   ingredients RecipeIngredient[]
   steps       RecipeStep[]
