@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import RecipeCard from "@/app/RecipeCard";
+import RecipeCard from "@/components/RecipeCard";
 
 interface Recipe {
   id: string;

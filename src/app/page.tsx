@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import RecipeCard from "@/app/RecipeCard";
+import RecipeCard from "@/components/RecipeCard";
 
 interface Recipe {
   id: string;
