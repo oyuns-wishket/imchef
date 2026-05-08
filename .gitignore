@@ -43,3 +43,9 @@ next-env.d.ts
 # Recipe image uploads
 public/uploads/*
 !public/uploads/.gitkeep
+
+/src/generated/prisma
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
