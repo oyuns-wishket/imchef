@@ -1,0 +1,70 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Pretendard", "-apple-system", "BlinkMacSystemFont", "system-ui",
+    "Helvetica Neue", "sans-serif";
+
+  --color-stone-50: #fafaf9;
+  --color-stone-100: #f5f5f4;
+  --color-stone-200: #e7e5e4;
+  --color-stone-300: #d6d3d1;
+  --color-stone-400: #a8a29e;
+  --color-stone-500: #78716c;
+  --color-stone-600: #57534e;
+  --color-stone-700: #44403c;
+  --color-stone-800: #292524;
+  --color-stone-900: #1c1917;
+  --color-stone-950: #0c0a09;
+}
+
+@layer base {
+  body {
+    @apply bg-stone-50 text-stone-800 antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-stone-800 text-stone-50 px-5 py-3 rounded-lg text-sm font-medium
+           hover:bg-stone-700 active:scale-[0.97] transition-all disabled:opacity-40
+           disabled:cursor-not-allowed disabled:active:scale-100
+           sm:py-2.5;
+  }
+
+  .btn-secondary {
+    @apply bg-stone-200 text-stone-700 px-5 py-3 rounded-lg text-sm font-medium
+           hover:bg-stone-300 active:scale-[0.97] transition-all
+           sm:py-2.5;
+  }
+
+  .btn-danger {
+    @apply bg-red-50 text-red-600 px-5 py-3 rounded-lg text-sm font-medium
+           hover:bg-red-100 active:scale-[0.97] transition-all
+           sm:py-2.5;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 bg-white border border-stone-200 rounded-lg text-base
+           placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300
+           focus:border-transparent transition-all
+           sm:py-2.5 sm:text-sm;
+  }
+
+  .card {
+    @apply bg-white rounded-xl sm:rounded-2xl border border-stone-100 overflow-hidden
+           hover:shadow-md active:scale-[0.98] transition-all duration-300;
+  }
+}
