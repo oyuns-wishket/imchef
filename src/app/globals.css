@@ -1,27 +1,45 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap");
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Pretendard", "-apple-system", "BlinkMacSystemFont", "system-ui",
     "Helvetica Neue", "sans-serif";
+  --font-display: "Bricolage Grotesque", "Pretendard", "sans-serif";
 
-  --color-stone-50: #fafaf9;
-  --color-stone-100: #f5f5f4;
-  --color-stone-200: #e7e5e4;
-  --color-stone-300: #d6d3d1;
-  --color-stone-400: #a8a29e;
-  --color-stone-500: #78716c;
-  --color-stone-600: #57534e;
-  --color-stone-700: #44403c;
-  --color-stone-800: #292524;
-  --color-stone-900: #1c1917;
-  --color-stone-950: #0c0a09;
+  /* Fresh Market — surfaces */
+  --color-canvas: #ffffff;
+  --color-mist: #f3f8f0; /* light green-tinted section bg */
+  --color-line: #e6ece1; /* soft borders */
+  --color-ink: #17211a; /* primary text */
+  --color-ink-soft: #5c6b5f; /* muted text */
+  --color-ink-faint: #94a394; /* faint meta text */
+
+  /* Fresh Market — grass (primary) */
+  --color-grass-50: #ecf7ef;
+  --color-grass-100: #d6efdd;
+  --color-grass-200: #aee0bc;
+  --color-grass-300: #79cd95;
+  --color-grass-400: #45b86d;
+  --color-grass-500: #1fa463;
+  --color-grass-600: #178a52;
+  --color-grass-700: #146e43;
+
+  /* Fresh Market — citrus (accent) */
+  --color-citrus-200: #ffe79c;
+  --color-citrus-300: #ffd757;
+  --color-citrus-400: #fcc419;
+  --color-citrus-500: #f0ab00;
 }
 
 @layer base {
   body {
-    @apply bg-stone-50 text-stone-800 antialiased;
+    @apply bg-canvas text-ink antialiased;
     -webkit-tap-highlight-color: transparent;
+  }
+  ::selection {
+    background-color: var(--color-grass-200);
+    color: var(--color-grass-700);
   }
 }
 
@@ -36,35 +54,64 @@
   }
 }
 
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @layer components {
+  .font-display {
+    font-family: var(--font-display);
+    font-feature-settings: "ss01";
+  }
+
   .btn-primary {
-    @apply bg-stone-800 text-stone-50 px-5 py-3 rounded-lg text-sm font-medium
-           hover:bg-stone-700 active:scale-[0.97] transition-all disabled:opacity-40
-           disabled:cursor-not-allowed disabled:active:scale-100
+    @apply bg-grass-500 text-white px-5 py-3 rounded-full text-sm font-semibold
+           hover:bg-grass-600 active:scale-[0.97] transition-all disabled:opacity-40
+           disabled:cursor-not-allowed disabled:active:scale-100 shadow-sm shadow-grass-500/20
            sm:py-2.5;
   }
 
   .btn-secondary {
-    @apply bg-stone-200 text-stone-700 px-5 py-3 rounded-lg text-sm font-medium
-           hover:bg-stone-300 active:scale-[0.97] transition-all
+    @apply bg-grass-50 text-grass-700 px-5 py-3 rounded-full text-sm font-semibold
+           hover:bg-grass-100 active:scale-[0.97] transition-all
            sm:py-2.5;
   }
 
   .btn-danger {
-    @apply bg-red-50 text-red-600 px-5 py-3 rounded-lg text-sm font-medium
+    @apply bg-red-50 text-red-600 px-5 py-3 rounded-full text-sm font-semibold
            hover:bg-red-100 active:scale-[0.97] transition-all
            sm:py-2.5;
   }
 
   .input-field {
-    @apply w-full px-4 py-3 bg-white border border-stone-200 rounded-lg text-base
-           placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-300
-           focus:border-transparent transition-all
+    @apply w-full px-4 py-3 bg-white border border-line rounded-xl text-base
+           placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-grass-300
+           focus:border-grass-400 transition-all
            sm:py-2.5 sm:text-sm;
   }
 
+  /* Pill chip — category / popular search shortcuts */
+  .chip {
+    @apply inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-sm font-medium
+           border border-line bg-white text-ink-soft
+           hover:border-grass-300 hover:text-grass-700 hover:bg-grass-50
+           active:scale-[0.96] transition-all;
+  }
+  .chip-active {
+    @apply border-grass-500 bg-grass-500 text-white
+           hover:bg-grass-600 hover:text-white;
+  }
+
   .card {
-    @apply bg-white rounded-xl sm:rounded-2xl border border-stone-100 overflow-hidden
-           hover:shadow-md active:scale-[0.98] transition-all duration-300;
+    @apply bg-white rounded-2xl border border-line overflow-hidden
+           hover:border-grass-200 hover:shadow-lg hover:shadow-grass-700/10
+           hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300;
   }
 }

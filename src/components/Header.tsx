@@ -19,33 +19,44 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-stone-50/80 backdrop-blur-md border-b border-stone-100">
-      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-canvas/85 backdrop-blur-md border-b border-line">
+      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link
           href="/"
-          className="text-lg font-bold text-stone-900 tracking-tight"
+          className="font-display text-xl font-extrabold text-ink tracking-tight flex items-center gap-1.5"
           onClick={() => setMenuOpen(false)}
         >
+          <span
+            className="inline-block w-2.5 h-2.5 rounded-full bg-grass-500"
+            aria-hidden
+          />
           imchef
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden sm:flex items-center gap-3">
+        <nav className="hidden sm:flex items-center gap-2">
           {user ? (
             <>
               <Link
                 href="/my-recipes"
-                className="text-sm text-stone-500 hover:text-stone-800 transition-colors"
+                className="px-3 py-2 text-sm font-medium text-ink-soft hover:text-grass-700 transition-colors"
               >
                 내 레시피
               </Link>
-              <span className="text-sm text-stone-400">{user.nickname}</span>
-              <button
-                onClick={handleLogout}
-                className="text-sm text-stone-400 hover:text-stone-600 transition-colors"
-              >
-                로그아웃
-              </button>
+              <Link href="/recipes/new" className="btn-primary text-xs">
+                + 레시피 등록
+              </Link>
+              <div className="flex items-center gap-2 pl-2 ml-1 border-l border-line">
+                <span className="text-sm font-medium text-ink-soft">
+                  {user.nickname}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm text-ink-faint hover:text-ink-soft transition-colors"
+                >
+                  로그아웃
+                </button>
+              </div>
             </>
           ) : (
             <Link href="/login" className="btn-primary text-xs">
@@ -56,7 +67,7 @@ export default function Header() {
 
         {/* Mobile hamburger button */}
         <button
-          className="sm:hidden p-2 -mr-2 text-stone-600"
+          className="sm:hidden p-2 -mr-2 text-ink-soft"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="메뉴"
         >
@@ -74,23 +85,30 @@ export default function Header() {
 
       {/* Mobile dropdown menu */}
       {menuOpen && (
-        <div className="sm:hidden border-t border-stone-100 bg-stone-50/95 backdrop-blur-md animate-[slide-down_0.2s_ease-out]">
-          <div className="max-w-5xl mx-auto px-4 py-3 space-y-1">
+        <div className="sm:hidden border-t border-line bg-canvas/95 backdrop-blur-md animate-[slide-down_0.2s_ease-out]">
+          <div className="max-w-6xl mx-auto px-4 py-3 space-y-1">
             {user ? (
               <>
                 <Link
+                  href="/recipes/new"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-3 py-2.5 text-sm font-semibold text-grass-700 hover:bg-grass-50 rounded-lg transition-colors"
+                >
+                  + 레시피 등록
+                </Link>
+                <Link
                   href="/my-recipes"
                   onClick={() => setMenuOpen(false)}
-                  className="block px-3 py-2.5 text-sm text-stone-600 hover:bg-stone-100 active:bg-stone-200 rounded-lg transition-colors"
+                  className="block px-3 py-2.5 text-sm font-medium text-ink-soft hover:bg-grass-50 rounded-lg transition-colors"
                 >
                   내 레시피
                 </Link>
-                <div className="border-t border-stone-100 mt-1 pt-1">
+                <div className="border-t border-line mt-1 pt-1">
                   <div className="flex items-center justify-between px-3 py-2.5">
-                    <span className="text-sm text-stone-400">{user.nickname}</span>
+                    <span className="text-sm font-medium text-ink-soft">{user.nickname}</span>
                     <button
                       onClick={handleLogout}
-                      className="text-sm text-stone-400 hover:text-stone-600 transition-colors"
+                      className="text-sm text-ink-faint hover:text-ink-soft transition-colors"
                     >
                       로그아웃
                     </button>
@@ -101,7 +119,7 @@ export default function Header() {
               <Link
                 href="/login"
                 onClick={() => setMenuOpen(false)}
-                className="block px-3 py-2.5 text-sm text-stone-600 hover:bg-stone-100 rounded-lg"
+                className="block px-3 py-2.5 text-sm font-medium text-ink-soft hover:bg-grass-50 rounded-lg"
               >
                 로그인
               </Link>
