@@ -22,31 +22,47 @@ export default function EditRecipePage() {
   const { id } = useParams<{ id: string }>();
   const [recipe, setRecipe] = useState<RecipeData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     async function load() {
-      const [meRes, recipeRes] = await Promise.all([
-        fetch("/api/auth/me"),
-        fetch(`/api/recipes/${id}`),
-      ]);
+      try {
+        const [meRes, recipeRes] = await Promise.all([
+          fetch("/api/auth/me"),
+          fetch(`/api/recipes/${id}`),
+        ]);
 
-      const me = await meRes.json();
-      if (!me.user) {
-        router.push("/login");
-        return;
+        const me = await meRes.json();
+        if (!me.user) {
+          router.push("/login");
+          return;
+        }
+
+        const data = await recipeRes.json();
+        if (!recipeRes.ok || !data || data.userId !== me.user.id) {
+          router.push(`/recipes/${id}`);
+          return;
+        }
+
+        setRecipe(data);
+        setLoading(false);
+      } catch {
+        setError(true);
+        setLoading(false);
       }
-
-      const data = await recipeRes.json();
-      if (data.userId !== me.user.id) {
-        router.push(`/recipes/${id}`);
-        return;
-      }
-
-      setRecipe(data);
-      setLoading(false);
     }
     load();
   }, [id, router]);
+
+  if (error) {
+    return (
+      <main className="max-w-2xl mx-auto px-4 py-24 text-center">
+        <p className="text-stone-400 text-sm">
+          레시피를 불러올 수 없습니다.
+        </p>
+      </main>
+    );
+  }
 
   if (loading || !recipe) {
     return (

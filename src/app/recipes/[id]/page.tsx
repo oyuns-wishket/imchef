@@ -32,19 +32,49 @@ export default function RecipeDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user: currentUser } = useAuth();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
   const [modal, setModal] = useState<"edit" | "delete" | null>(null);
   const [imageIndex, setImageIndex] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
     fetch(`/api/recipes/${id}`)
-      .then((r) => r.json())
-      .then(setRecipe);
+      .then(async (r) => {
+        if (!r.ok) throw new Error(`status ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+        // Guard against error-shaped payloads ({ error: "..." }).
+        if (data && typeof data === "object" && data.user) {
+          setRecipe(data);
+          setStatus("ok");
+        } else {
+          setStatus("error");
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setStatus("error");
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
-  if (!recipe) {
+  if (status === "loading") {
     return (
       <main className="max-w-2xl mx-auto px-4 py-6 sm:py-10">
         <div className="text-stone-400 text-sm">불러오는 중...</div>
+      </main>
+    );
+  }
+
+  if (status === "error" || !recipe) {
+    return (
+      <main className="max-w-2xl mx-auto px-4 py-24 text-center">
+        <p className="text-stone-400 text-sm">
+          레시피를 불러올 수 없습니다.
+        </p>
       </main>
     );
   }
