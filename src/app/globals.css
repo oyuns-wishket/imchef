@@ -5,54 +5,36 @@
   --font-sans: "Pretendard", "-apple-system", "BlinkMacSystemFont", "system-ui",
     "Helvetica Neue", "sans-serif";
 
-  /* Frosted Soft — surfaces */
-  --color-base: #efefec;
-  --color-ink: #2c2a27;
-  --color-ink-soft: #7a7670;
-  --color-ink-faint: #b0ada8;
-  --color-line: #e3e1dc;
+  /* Black & white — line-driven */
+  --color-base: #ffffff;
+  --color-ink: #141414;
+  --color-ink-soft: #565656;
+  --color-ink-faint: #9a9a9a;
+  --color-line: rgba(20, 20, 20, 0.13); /* soft hairline (dividers) */
+  --color-edge: rgba(20, 20, 20, 0.85); /* crisp black outline (테두리) */
 
-  /* single warm accent */
-  --color-accent: #d97b5a;
-  --color-accent-strong: #d05a3a;
-
-  /* legacy tokens kept so not-yet-restyled pages still render */
-  --color-canvas: #ffffff;
-  --color-mist: #f1f0ec;
-  --color-grass-50: #ecf7ef;
-  --color-grass-100: #d6efdd;
-  --color-grass-200: #aee0bc;
-  --color-grass-400: #45b86d;
-  --color-grass-500: #1fa463;
-  --color-grass-600: #178a52;
-  --color-grass-700: #146e43;
-}
-
-/* Frosted glass surfaces — @utility so they work as classes AND with @apply */
-@utility glass {
-  background: rgba(255, 255, 255, 0.50);
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(16px) saturate(1.4);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  box-shadow: 0 2px 10px rgba(160, 150, 135, 0.10);
-}
-@utility glass-bar {
-  background: rgba(239, 239, 236, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(28px) saturate(1.8) brightness(1.04);
-  -webkit-backdrop-filter: blur(28px) saturate(1.8) brightness(1.04);
-  box-shadow: 0 8px 30px rgba(150, 140, 125, 0.20);
+  /* monochrome "accent" = ink */
+  --color-accent: #141414;
+  --color-accent-strong: #000000;
 }
 
 @layer base {
   body {
     @apply text-ink antialiased;
-    background: var(--color-base);
+    background-color: var(--color-base);
+    /* faint line texture — emphasize lines over shapes */
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgba(20, 20, 20, 0.035) 0px,
+      rgba(20, 20, 20, 0.035) 1px,
+      transparent 1px,
+      transparent 42px
+    );
     -webkit-tap-highlight-color: transparent;
   }
   ::selection {
-    background-color: rgba(217, 123, 90, 0.18);
-    color: var(--color-accent-strong);
+    background-color: #141414;
+    color: #ffffff;
   }
 }
 
@@ -70,50 +52,69 @@
   100% { transform: scale(1); }
 }
 
+/* Outlined white surface — defined by a thin black line, not a fill */
+@utility glass {
+  background: #ffffff;
+  border: 1px solid var(--color-edge);
+  box-shadow: none;
+}
+
+/* Floating footer / header — glassy: higher opacity + refractive edge */
+@utility glass-bar {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(20, 20, 20, 0.16);
+  backdrop-filter: blur(22px) saturate(1.15);
+  -webkit-backdrop-filter: blur(22px) saturate(1.15);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+    0 10px 30px rgba(20, 20, 20, 0.12);
+}
+
 @layer components {
-  /* Frosted action / meta chip */
+  /* Outlined chip — line, not shape */
   .fchip {
     @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium
-           text-ink-soft transition-all active:scale-[0.94];
-    background: rgba(255, 255, 255, 0.60);
-    border: 1px solid rgba(255, 255, 255, 0.80);
-    backdrop-filter: blur(12px) saturate(1.4);
-    -webkit-backdrop-filter: blur(12px) saturate(1.4);
-    box-shadow: 0 2px 8px rgba(160, 150, 135, 0.10);
+           text-ink transition-all active:scale-[0.94] bg-white;
+    border: 1px solid var(--color-edge);
   }
   .fchip-liked {
-    color: var(--color-accent-strong);
-    background: rgba(217, 123, 90, 0.10);
-    border-color: rgba(217, 123, 90, 0.28);
+    color: #ffffff;
+    background: #141414;
+    border-color: #141414;
   }
 
   .btn-primary {
-    @apply text-white px-5 py-3 rounded-full text-sm font-semibold
+    @apply px-5 py-3 rounded-full text-sm font-semibold text-white
            active:scale-[0.97] transition-all disabled:opacity-40
            disabled:cursor-not-allowed disabled:active:scale-100 sm:py-2.5;
-    background: var(--color-accent);
-    box-shadow: 0 4px 14px rgba(217, 123, 90, 0.28);
+    background: #141414;
+    border: 1px solid #141414;
   }
-  .btn-primary:hover { background: var(--color-accent-strong); }
+  .btn-primary:hover { background: #000000; }
 
   .btn-secondary {
-    @apply px-5 py-3 rounded-full text-sm font-semibold text-ink-soft
-           active:scale-[0.97] transition-all sm:py-2.5 glass;
+    @apply px-5 py-3 rounded-full text-sm font-semibold text-ink bg-white
+           active:scale-[0.97] transition-all sm:py-2.5;
+    border: 1px solid var(--color-edge);
   }
 
   .btn-danger {
-    @apply bg-red-50 text-red-500 px-5 py-3 rounded-full text-sm font-semibold
-           hover:bg-red-100 active:scale-[0.97] transition-all sm:py-2.5;
+    @apply px-5 py-3 rounded-full text-sm font-semibold bg-white
+           active:scale-[0.97] transition-all sm:py-2.5;
+    color: #b42318;
+    border: 1px solid rgba(180, 35, 24, 0.5);
   }
 
   .input-field {
-    @apply w-full px-4 py-3 rounded-2xl text-base text-ink
+    @apply w-full px-4 py-3 rounded-2xl text-base text-ink bg-white
            placeholder:text-ink-faint focus:outline-none transition-all
-           sm:py-2.5 sm:text-sm glass;
+           sm:py-2.5 sm:text-sm;
+    border: 1px solid var(--color-edge);
   }
   .input-field:focus {
-    border-color: rgba(217, 123, 90, 0.45);
-    box-shadow: 0 0 0 3px rgba(217, 123, 90, 0.14);
+    border-color: #141414;
+    box-shadow: 0 0 0 3px rgba(20, 20, 20, 0.10);
   }
 
   .card {
