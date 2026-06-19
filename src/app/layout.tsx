@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Header from "@/components/Header";
+import BottomNav from "@/components/BottomNav";
+import Blobs from "@/components/Blobs";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "imchef",
-  description: "My recipe collection",
+  description: "셰프들의 레시피를 둘러보세요",
 };
 
 export default function RootLayout({
@@ -16,9 +18,11 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="min-h-screen">
+        <Blobs />
         <AuthProvider>
           <Header />
-          {children}
+          <div className="pb-28">{children}</div>
+          <BottomNav />
         </AuthProvider>
       </body>
     </html>

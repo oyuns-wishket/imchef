@@ -5,6 +5,14 @@ import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import PasswordModal from "@/components/PasswordModal";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  Users,
+  Clock,
+  Gauge,
+  Heart,
+  PaperPlane,
+  LinkIcon,
+} from "@/components/icons";
 
 interface Recipe {
   id: string;
@@ -27,6 +35,18 @@ const DIFFICULTY_LABELS: Record<string, string> = {
   hard: "어려움",
 };
 
+function relativeDate(iso: string): string {
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
+  const days = Math.floor((Date.now() - then) / 86_400_000);
+  if (days <= 0) return "오늘";
+  if (days === 1) return "어제";
+  if (days < 7) return `${days}일 전`;
+  if (days < 30) return `${Math.floor(days / 7)}주 전`;
+  if (days < 365) return `${Math.floor(days / 30)}개월 전`;
+  return `${Math.floor(days / 365)}년 전`;
+}
+
 export default function RecipeDetailPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
@@ -35,6 +55,7 @@ export default function RecipeDetailPage() {
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
   const [modal, setModal] = useState<"edit" | "delete" | null>(null);
   const [imageIndex, setImageIndex] = useState(0);
+  const [liked, setLiked] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -45,7 +66,6 @@ export default function RecipeDetailPage() {
       })
       .then((data) => {
         if (cancelled) return;
-        // Guard against error-shaped payloads ({ error: "..." }).
         if (data && typeof data === "object" && data.user) {
           setRecipe(data);
           setStatus("ok");
@@ -63,18 +83,20 @@ export default function RecipeDetailPage() {
 
   if (status === "loading") {
     return (
-      <main className="max-w-2xl mx-auto px-4 py-6 sm:py-10">
-        <div className="text-stone-400 text-sm">불러오는 중...</div>
+      <main className="max-w-[520px] mx-auto px-3 pt-3">
+        <div className="aspect-[4/3] rounded-3xl glass animate-pulse" />
       </main>
     );
   }
 
   if (status === "error" || !recipe) {
     return (
-      <main className="max-w-2xl mx-auto px-4 py-24 text-center">
-        <p className="text-stone-400 text-sm">
-          레시피를 불러올 수 없습니다.
-        </p>
+      <main className="max-w-[520px] mx-auto px-6 py-24 text-center">
+        <div className="text-4xl mb-4" aria-hidden>🍲</div>
+        <p className="text-base font-bold text-ink">레시피를 불러올 수 없습니다.</p>
+        <button onClick={() => router.push("/")} className="btn-secondary mt-5">
+          홈으로
+        </button>
       </main>
     );
   }
@@ -89,15 +111,31 @@ export default function RecipeDetailPage() {
     }
   }
 
+  async function share() {
+    if (!recipe) return;
+    const url = `${window.location.origin}/recipes/${recipe.id}`;
+    try {
+      if (navigator.share) await navigator.share({ title: recipe.title, url });
+      else {
+        await navigator.clipboard.writeText(url);
+        alert("링크를 복사했어요!");
+      }
+    } catch {
+      /* cancelled */
+    }
+  }
+
   return (
-    <main className="max-w-2xl mx-auto px-4 py-6 sm:py-10">
-      {/* Images */}
+    <main className="max-w-[520px] mx-auto px-3 pt-3">
+      {/* Hero */}
       {recipe.images.length > 0 && (
-        <div className="relative w-full aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden bg-stone-100 mb-6 sm:mb-8">
+        <div className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden bg-[#E6E3DE] mb-5">
           <Image
             src={recipe.images[imageIndex].url}
             alt={recipe.title}
             fill
+            priority
+            sizes="(max-width: 520px) 100vw, 500px"
             className="object-contain"
           />
           {recipe.images.length > 1 && (
@@ -105,9 +143,10 @@ export default function RecipeDetailPage() {
               {recipe.images.map((_, i) => (
                 <button
                   key={i}
+                  aria-label={`사진 ${i + 1}`}
                   onClick={() => setImageIndex(i)}
                   className={`w-2 h-2 rounded-full transition-colors ${
-                    i === imageIndex ? "bg-white" : "bg-white/40"
+                    i === imageIndex ? "bg-white" : "bg-white/50"
                   }`}
                 />
               ))}
@@ -116,53 +155,69 @@ export default function RecipeDetailPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-xl sm:text-2xl font-bold text-stone-900">{recipe.title}</h1>
-        <div className="flex items-center gap-3 mt-2 text-sm text-stone-400">
-          <span>{recipe.user.nickname}</span>
-          <span>{new Date(recipe.createdAt).toLocaleDateString("ko-KR")}</span>
-        </div>
-        {recipe.description && (
-          <p className="mt-4 text-stone-600 text-sm leading-relaxed">
-            {recipe.description}
-          </p>
-        )}
+      {/* Title */}
+      <h1 className="text-[22px] font-bold tracking-tight text-ink leading-tight px-0.5">
+        {recipe.title}
+      </h1>
+      <p className="text-[13px] text-ink-faint mt-1 px-0.5">
+        @{recipe.user.nickname} · {relativeDate(recipe.createdAt)}
+      </p>
+
+      {/* Like / Share */}
+      <div className="flex gap-2 mt-3 px-0.5">
+        <button
+          type="button"
+          aria-pressed={liked}
+          onClick={() => setLiked((v) => !v)}
+          className={`fchip ${liked ? "fchip-liked" : ""}`}
+        >
+          <Heart filled={liked} className="w-3.5 h-3.5" />
+          좋아요
+        </button>
+        <button type="button" onClick={share} className="fchip">
+          <PaperPlane className="w-3.5 h-3.5" />
+          공유
+        </button>
       </div>
 
-      {/* Meta */}
-      <div className="flex flex-wrap gap-4 sm:gap-6 py-4 border-y border-stone-100 mb-6 sm:mb-8 text-sm">
-        <div>
-          <span className="text-stone-400">인분</span>
-          <p className="font-medium text-stone-800">{recipe.servings}인분</p>
-        </div>
+      {recipe.description && (
+        <p className="mt-4 text-sm text-ink-soft leading-relaxed px-0.5">
+          {recipe.description}
+        </p>
+      )}
+
+      {/* Meta chips */}
+      <div className="flex flex-wrap gap-2 mt-4 px-0.5">
+        <span className="fchip">
+          <Users className="w-3.5 h-3.5" />
+          <strong className="text-ink font-semibold">{recipe.servings}</strong>인분
+        </span>
         {recipe.cookTime && (
-          <div>
-            <span className="text-stone-400">조리시간</span>
-            <p className="font-medium text-stone-800">{recipe.cookTime}분</p>
-          </div>
+          <span className="fchip">
+            <Clock className="w-3.5 h-3.5" />
+            <strong className="text-ink font-semibold">{recipe.cookTime}</strong>분
+          </span>
         )}
-        <div>
-          <span className="text-stone-400">난이도</span>
-          <p className="font-medium text-stone-800">
-            {DIFFICULTY_LABELS[recipe.difficulty] || recipe.difficulty}
-          </p>
-        </div>
+        <span className="fchip">
+          <Gauge className="w-3.5 h-3.5" />
+          {DIFFICULTY_LABELS[recipe.difficulty] || recipe.difficulty}
+        </span>
       </div>
 
       {/* Ingredients */}
-      <section className="mb-6 sm:mb-8">
-        <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider mb-4">
+      <section className="mt-7">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint mb-2.5 px-0.5">
           재료
         </h2>
-        <ul className="space-y-2">
+        <ul className="glass rounded-2xl overflow-hidden">
           {recipe.ingredients.map((ing) => (
             <li
               key={ing.id}
-              className="flex justify-between py-2 border-b border-stone-50 text-sm"
+              className="flex justify-between items-center px-4 py-3 border-b last:border-b-0"
+              style={{ borderColor: "rgba(255,255,255,0.5)" }}
             >
-              <span className="text-stone-700">{ing.name}</span>
-              <span className="text-stone-400">
+              <span className="text-[13px] text-ink font-medium">{ing.name}</span>
+              <span className="text-xs text-ink-faint">
                 {ing.amount} {ing.unit}
               </span>
             </li>
@@ -171,17 +226,17 @@ export default function RecipeDetailPage() {
       </section>
 
       {/* Steps */}
-      <section className="mb-6 sm:mb-8">
-        <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider mb-4">
+      <section className="mt-7">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint mb-2.5 px-0.5">
           조리 순서
         </h2>
-        <ol className="space-y-6">
+        <ol className="space-y-2.5">
           {recipe.steps.map((step) => (
-            <li key={step.id} className="flex gap-4">
-              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-stone-800 text-white text-xs font-medium flex items-center justify-center mt-0.5">
+            <li key={step.id} className="glass rounded-2xl flex gap-3 p-3.5">
+              <span className="flex-shrink-0 w-[22px] h-[22px] rounded-full bg-ink text-white text-[11px] font-bold flex items-center justify-center mt-0.5">
                 {step.order}
               </span>
-              <p className="text-sm text-stone-700 leading-relaxed pt-1">
+              <p className="text-[13px] text-ink leading-relaxed pt-0.5">
                 {step.content}
               </p>
             </li>
@@ -189,55 +244,48 @@ export default function RecipeDetailPage() {
         </ol>
       </section>
 
-      {/* Reference Link */}
+      {/* Reference link */}
       {recipe.referenceUrl && (
-        <section className="mb-6 sm:mb-8">
-          <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider mb-3">
+        <section className="mt-7">
+          <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint mb-2.5 px-0.5">
             참고 링크
           </h2>
           <a
             href={recipe.referenceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-800 transition-colors break-all"
+            className="flex items-center gap-2 px-4 py-3 rounded-2xl text-[13px] font-medium break-all"
+            style={{
+              color: "var(--color-accent)",
+              background: "rgba(217,123,90,0.10)",
+              border: "1px solid rgba(217,123,90,0.20)",
+            }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-            </svg>
-            {recipe.referenceUrl}
+            <LinkIcon className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="line-clamp-1">{recipe.referenceUrl}</span>
           </a>
         </section>
       )}
 
       {/* Owner actions */}
       {isOwner && (
-        <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-stone-100">
-          <button
-            onClick={() => setModal("edit")}
-            className="btn-secondary"
-          >
+        <div className="flex gap-3 mt-8 pt-5" style={{ borderTop: "1px solid var(--color-line)" }}>
+          <button onClick={() => setModal("edit")} className="btn-secondary flex-1">
             수정
           </button>
-          <button
-            onClick={() => setModal("delete")}
-            className="btn-danger"
-          >
+          <button onClick={() => setModal("delete")} className="btn-danger flex-1">
             삭제
           </button>
         </div>
       )}
 
-      {/* Password Modal */}
       {modal && (
         <PasswordModal
           action={modal}
           onCancel={() => setModal(null)}
           onConfirm={() => {
-            if (modal === "delete") {
-              handleDelete();
-            } else {
-              router.push(`/recipes/${id}/edit`);
-            }
+            if (modal === "delete") handleDelete();
+            else router.push(`/recipes/${id}/edit`);
           }}
         />
       )}

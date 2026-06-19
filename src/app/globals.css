@@ -1,117 +1,122 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
-@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap");
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Pretendard", "-apple-system", "BlinkMacSystemFont", "system-ui",
     "Helvetica Neue", "sans-serif";
-  --font-display: "Bricolage Grotesque", "Pretendard", "sans-serif";
 
-  /* Fresh Market — surfaces */
+  /* Frosted Soft — surfaces */
+  --color-base: #efefec;
+  --color-ink: #2c2a27;
+  --color-ink-soft: #7a7670;
+  --color-ink-faint: #b0ada8;
+  --color-line: #e3e1dc;
+
+  /* single warm accent */
+  --color-accent: #d97b5a;
+  --color-accent-strong: #d05a3a;
+
+  /* legacy tokens kept so not-yet-restyled pages still render */
   --color-canvas: #ffffff;
-  --color-mist: #f3f8f0; /* light green-tinted section bg */
-  --color-line: #e6ece1; /* soft borders */
-  --color-ink: #17211a; /* primary text */
-  --color-ink-soft: #5c6b5f; /* muted text */
-  --color-ink-faint: #94a394; /* faint meta text */
-
-  /* Fresh Market — grass (primary) */
+  --color-mist: #f1f0ec;
   --color-grass-50: #ecf7ef;
   --color-grass-100: #d6efdd;
   --color-grass-200: #aee0bc;
-  --color-grass-300: #79cd95;
   --color-grass-400: #45b86d;
   --color-grass-500: #1fa463;
   --color-grass-600: #178a52;
   --color-grass-700: #146e43;
+}
 
-  /* Fresh Market — citrus (accent) */
-  --color-citrus-200: #ffe79c;
-  --color-citrus-300: #ffd757;
-  --color-citrus-400: #fcc419;
-  --color-citrus-500: #f0ab00;
+/* Frosted glass surfaces — @utility so they work as classes AND with @apply */
+@utility glass {
+  background: rgba(255, 255, 255, 0.50);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow: 0 2px 10px rgba(160, 150, 135, 0.10);
+}
+@utility glass-bar {
+  background: rgba(239, 239, 236, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(28px) saturate(1.8) brightness(1.04);
+  -webkit-backdrop-filter: blur(28px) saturate(1.8) brightness(1.04);
+  box-shadow: 0 8px 30px rgba(150, 140, 125, 0.20);
 }
 
 @layer base {
   body {
-    @apply bg-canvas text-ink antialiased;
+    @apply text-ink antialiased;
+    background: var(--color-base);
     -webkit-tap-highlight-color: transparent;
   }
   ::selection {
-    background-color: var(--color-grass-200);
-    color: var(--color-grass-700);
+    background-color: rgba(217, 123, 90, 0.18);
+    color: var(--color-accent-strong);
   }
 }
 
 @keyframes slide-down {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.28); }
+  100% { transform: scale(1); }
 }
 
 @layer components {
-  .font-display {
-    font-family: var(--font-display);
-    font-feature-settings: "ss01";
+  /* Frosted action / meta chip */
+  .fchip {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium
+           text-ink-soft transition-all active:scale-[0.94];
+    background: rgba(255, 255, 255, 0.60);
+    border: 1px solid rgba(255, 255, 255, 0.80);
+    backdrop-filter: blur(12px) saturate(1.4);
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+    box-shadow: 0 2px 8px rgba(160, 150, 135, 0.10);
+  }
+  .fchip-liked {
+    color: var(--color-accent-strong);
+    background: rgba(217, 123, 90, 0.10);
+    border-color: rgba(217, 123, 90, 0.28);
   }
 
   .btn-primary {
-    @apply bg-grass-500 text-white px-5 py-3 rounded-full text-sm font-semibold
-           hover:bg-grass-600 active:scale-[0.97] transition-all disabled:opacity-40
-           disabled:cursor-not-allowed disabled:active:scale-100 shadow-sm shadow-grass-500/20
-           sm:py-2.5;
+    @apply text-white px-5 py-3 rounded-full text-sm font-semibold
+           active:scale-[0.97] transition-all disabled:opacity-40
+           disabled:cursor-not-allowed disabled:active:scale-100 sm:py-2.5;
+    background: var(--color-accent);
+    box-shadow: 0 4px 14px rgba(217, 123, 90, 0.28);
   }
+  .btn-primary:hover { background: var(--color-accent-strong); }
 
   .btn-secondary {
-    @apply bg-grass-50 text-grass-700 px-5 py-3 rounded-full text-sm font-semibold
-           hover:bg-grass-100 active:scale-[0.97] transition-all
-           sm:py-2.5;
+    @apply px-5 py-3 rounded-full text-sm font-semibold text-ink-soft
+           active:scale-[0.97] transition-all sm:py-2.5 glass;
   }
 
   .btn-danger {
-    @apply bg-red-50 text-red-600 px-5 py-3 rounded-full text-sm font-semibold
-           hover:bg-red-100 active:scale-[0.97] transition-all
-           sm:py-2.5;
+    @apply bg-red-50 text-red-500 px-5 py-3 rounded-full text-sm font-semibold
+           hover:bg-red-100 active:scale-[0.97] transition-all sm:py-2.5;
   }
 
   .input-field {
-    @apply w-full px-4 py-3 bg-white border border-line rounded-xl text-base
-           placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-grass-300
-           focus:border-grass-400 transition-all
-           sm:py-2.5 sm:text-sm;
+    @apply w-full px-4 py-3 rounded-2xl text-base text-ink
+           placeholder:text-ink-faint focus:outline-none transition-all
+           sm:py-2.5 sm:text-sm glass;
   }
-
-  /* Pill chip — category / popular search shortcuts */
-  .chip {
-    @apply inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-sm font-medium
-           border border-line bg-white text-ink-soft
-           hover:border-grass-300 hover:text-grass-700 hover:bg-grass-50
-           active:scale-[0.96] transition-all;
-  }
-  .chip-active {
-    @apply border-grass-500 bg-grass-500 text-white
-           hover:bg-grass-600 hover:text-white;
+  .input-field:focus {
+    border-color: rgba(217, 123, 90, 0.45);
+    box-shadow: 0 0 0 3px rgba(217, 123, 90, 0.14);
   }
 
   .card {
-    @apply bg-white rounded-2xl border border-line overflow-hidden
-           hover:border-grass-200 hover:shadow-lg hover:shadow-grass-700/10
-           hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300;
+    @apply rounded-3xl overflow-hidden transition-all duration-300 glass;
   }
 }
