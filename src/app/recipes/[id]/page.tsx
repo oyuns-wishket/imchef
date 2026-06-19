@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import PasswordModal from "@/components/PasswordModal";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,6 +12,7 @@ import {
   Gauge,
   Heart,
   PaperPlane,
+  Comment as CommentIcon,
   LinkIcon,
 } from "@/components/icons";
 
@@ -27,6 +29,16 @@ interface Recipe {
   steps: { id: string; content: string; order: number }[];
   images: { id: string; url: string; order: number }[];
   createdAt: string;
+  likeCount: number;
+  commentCount: number;
+  likedByMe: boolean;
+}
+
+interface CommentItem {
+  id: string;
+  content: string;
+  createdAt: string;
+  user: { id: string; nickname: string };
 }
 
 const DIFFICULTY_LABELS: Record<string, string> = {
@@ -55,7 +67,14 @@ export default function RecipeDetailPage() {
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
   const [modal, setModal] = useState<"edit" | "delete" | null>(null);
   const [imageIndex, setImageIndex] = useState(0);
+
   const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [likeBusy, setLikeBusy] = useState(false);
+
+  const [comments, setComments] = useState<CommentItem[]>([]);
+  const [commentText, setCommentText] = useState("");
+  const [posting, setPosting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,6 +87,8 @@ export default function RecipeDetailPage() {
         if (cancelled) return;
         if (data && typeof data === "object" && data.user) {
           setRecipe(data);
+          setLiked(!!data.likedByMe);
+          setLikeCount(data.likeCount ?? 0);
           setStatus("ok");
         } else {
           setStatus("error");
@@ -76,6 +97,19 @@ export default function RecipeDetailPage() {
       .catch(() => {
         if (!cancelled) setStatus("error");
       });
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/recipes/${id}/comments`)
+      .then((r) => (r.ok ? r.json() : { comments: [] }))
+      .then((data) => {
+        if (!cancelled) setComments(Array.isArray(data?.comments) ? data.comments : []);
+      })
+      .catch(() => {});
     return () => {
       cancelled = true;
     };
@@ -111,6 +145,31 @@ export default function RecipeDetailPage() {
     }
   }
 
+  async function toggleLike() {
+    if (!currentUser) {
+      router.push("/login");
+      return;
+    }
+    if (likeBusy) return;
+    setLikeBusy(true);
+    // optimistic
+    setLiked((v) => !v);
+    setLikeCount((c) => c + (liked ? -1 : 1));
+    try {
+      const res = await fetch(`/api/recipes/${id}/like`, { method: "POST" });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setLiked(data.liked);
+      setLikeCount(data.count);
+    } catch {
+      // revert
+      setLiked((v) => !v);
+      setLikeCount((c) => c + (liked ? 1 : -1));
+    } finally {
+      setLikeBusy(false);
+    }
+  }
+
   async function share() {
     if (!recipe) return;
     const url = `${window.location.origin}/recipes/${recipe.id}`;
@@ -122,6 +181,28 @@ export default function RecipeDetailPage() {
       }
     } catch {
       /* cancelled */
+    }
+  }
+
+  async function addComment(e: React.FormEvent) {
+    e.preventDefault();
+    const content = commentText.trim();
+    if (!content || posting) return;
+    setPosting(true);
+    try {
+      const res = await fetch(`/api/recipes/${id}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+      if (!res.ok) throw new Error();
+      const created = await res.json();
+      setComments((prev) => [created, ...prev]);
+      setCommentText("");
+    } catch {
+      alert("댓글 등록에 실패했어요.");
+    } finally {
+      setPosting(false);
     }
   }
 
@@ -168,16 +249,24 @@ export default function RecipeDetailPage() {
         <button
           type="button"
           aria-pressed={liked}
-          onClick={() => setLiked((v) => !v)}
+          onClick={toggleLike}
           className={`fchip ${liked ? "fchip-liked" : ""}`}
         >
-          <Heart filled={liked} className="w-3.5 h-3.5" />
-          좋아요
+          <Heart
+            filled={liked}
+            className="w-3.5 h-3.5"
+            style={liked ? { animation: "pop 0.3s ease-out" } : undefined}
+          />
+          {likeCount > 0 ? likeCount : "좋아요"}
         </button>
         <button type="button" onClick={share} className="fchip">
           <PaperPlane className="w-3.5 h-3.5" />
           공유
         </button>
+        <span className="fchip">
+          <CommentIcon className="w-3.5 h-3.5" />
+          {comments.length}
+        </span>
       </div>
 
       {recipe.description && (
@@ -266,6 +355,64 @@ export default function RecipeDetailPage() {
           </a>
         </section>
       )}
+
+      {/* Comments */}
+      <section className="mt-8">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-faint mb-3 px-0.5">
+          댓글 {comments.length}
+        </h2>
+
+        {currentUser ? (
+          <form onSubmit={addComment} className="flex gap-2 mb-4">
+            <input
+              type="text"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="따뜻한 댓글을 남겨보세요"
+              maxLength={500}
+              className="input-field rounded-full flex-1"
+            />
+            <button
+              type="submit"
+              disabled={posting || !commentText.trim()}
+              className="btn-primary px-4"
+            >
+              등록
+            </button>
+          </form>
+        ) : (
+          <Link
+            href="/login"
+            className="block glass rounded-2xl px-4 py-3 text-[13px] text-ink-soft mb-4"
+          >
+            로그인하고 댓글을 남겨보세요 →
+          </Link>
+        )}
+
+        {comments.length === 0 ? (
+          <p className="text-[13px] text-ink-faint px-0.5 py-2">
+            아직 댓글이 없어요. 첫 댓글을 남겨보세요!
+          </p>
+        ) : (
+          <ul className="space-y-2.5">
+            {comments.map((c) => (
+              <li key={c.id} className="glass rounded-2xl px-4 py-3">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-[13px] font-semibold text-ink">
+                    @{c.user.nickname}
+                  </span>
+                  <span className="text-[11px] text-ink-faint flex-shrink-0">
+                    {relativeDate(c.createdAt)}
+                  </span>
+                </div>
+                <p className="text-[13px] text-ink-soft mt-1 leading-relaxed whitespace-pre-wrap break-words">
+                  {c.content}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       {/* Owner actions */}
       {isOwner && (

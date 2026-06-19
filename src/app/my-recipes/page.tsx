@@ -14,6 +14,9 @@ interface Recipe {
   user: { nickname: string };
   images: { url: string }[];
   createdAt: string;
+  likeCount?: number;
+  commentCount?: number;
+  likedByMe?: boolean;
 }
 
 export default function MyRecipesPage() {
@@ -113,6 +116,9 @@ export default function MyRecipesPage() {
             title={r.title}
             nickname={r.user?.nickname ?? user?.nickname ?? "나"}
             imageUrl={r.images[0]?.url || null}
+            likeCount={r.likeCount}
+            commentCount={r.commentCount}
+            likedByMe={r.likedByMe}
             priority={i === 0}
           />
         ))

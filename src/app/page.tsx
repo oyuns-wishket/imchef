@@ -11,6 +11,9 @@ interface Recipe {
   user: { nickname: string };
   images: { url: string }[];
   createdAt: string;
+  likeCount?: number;
+  commentCount?: number;
+  likedByMe?: boolean;
 }
 
 export default function Home() {
@@ -124,6 +127,9 @@ export default function Home() {
               title={r.title}
               nickname={r.user?.nickname ?? "익명"}
               imageUrl={r.images[0]?.url || null}
+              likeCount={r.likeCount}
+              commentCount={r.commentCount}
+              likedByMe={r.likedByMe}
               priority={i === 0}
             />
           ))}

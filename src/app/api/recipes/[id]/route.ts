@@ -20,6 +20,7 @@ export async function GET(
         ingredients: { orderBy: { order: "asc" } },
         steps: { orderBy: { order: "asc" } },
         images: { orderBy: { order: "asc" } },
+        _count: { select: { likes: true, comments: true } },
       },
     });
 
@@ -27,7 +28,24 @@ export async function GET(
       return NextResponse.json({ error: "레시피를 찾을 수 없습니다." }, { status: 404 });
     }
 
-    return NextResponse.json(recipe);
+    // Has the current viewer liked this recipe?
+    const session = await getIronSession<SessionData>(
+      await cookies(),
+      sessionOptions
+    );
+    const likedByMe = session.userId
+      ? (await prisma.like.count({
+          where: { userId: session.userId, recipeId: id },
+        })) > 0
+      : false;
+
+    const { _count, ...rest } = recipe;
+    return NextResponse.json({
+      ...rest,
+      likeCount: _count.likes,
+      commentCount: _count.comments,
+      likedByMe,
+    });
   } catch (error) {
     return handleApiError(error, "GET /api/recipes/[id]");
   }

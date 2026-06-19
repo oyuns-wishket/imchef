@@ -20,11 +20,22 @@ export async function GET(req: NextRequest) {
     );
     const cursor = searchParams.get("cursor");
 
+    // Who's viewing — used to mark which posts they've already liked.
+    const session = await getIronSession<SessionData>(
+      await cookies(),
+      sessionOptions
+    );
+    const viewerId = session.userId;
+
     const recipes = await prisma.recipe.findMany({
       where: userId ? { userId } : undefined,
       include: {
         user: { select: { nickname: true } },
         images: { orderBy: { order: "asc" }, take: 1 },
+        _count: { select: { likes: true, comments: true } },
+        ...(viewerId
+          ? { likes: { where: { userId: viewerId }, select: { id: true } } }
+          : {}),
       },
       orderBy: { createdAt: "desc" },
       take: limit + 1,
@@ -32,8 +43,20 @@ export async function GET(req: NextRequest) {
     });
 
     const hasMore = recipes.length > limit;
-    const items = hasMore ? recipes.slice(0, limit) : recipes;
-    const nextCursor = hasMore ? items[items.length - 1]?.id : null;
+    const page = hasMore ? recipes.slice(0, limit) : recipes;
+    const nextCursor = hasMore ? page[page.length - 1]?.id : null;
+
+    const items = page.map((r) => {
+      const { _count, likes, ...rest } = r as typeof r & {
+        likes?: { id: string }[];
+      };
+      return {
+        ...rest,
+        likeCount: _count.likes,
+        commentCount: _count.comments,
+        likedByMe: Array.isArray(likes) && likes.length > 0,
+      };
+    });
 
     return NextResponse.json(
       { recipes: items, nextCursor },
