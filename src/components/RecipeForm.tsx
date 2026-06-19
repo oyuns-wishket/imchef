@@ -119,7 +119,7 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
       <ImageUploader images={imageUrls} onChange={setImageUrls} />
 
       <div>
-        <label className="text-sm font-medium text-stone-700">레시피 제목</label>
+        <label className="text-sm font-medium text-ink">레시피 제목</label>
         <input
           type="text"
           value={title}
@@ -131,8 +131,8 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
       </div>
 
       <div>
-        <label className="text-sm font-medium text-stone-700">
-          소개 <span className="text-stone-400 font-normal">(선택)</span>
+        <label className="text-sm font-medium text-ink">
+          소개 <span className="text-ink-faint font-normal">(선택)</span>
         </label>
         <textarea
           value={description}
@@ -145,22 +145,22 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className="text-sm font-medium text-stone-700">인분</label>
+          <label className="text-sm font-medium text-ink">인분</label>
           <div className="flex items-center gap-2 mt-1.5">
             <button
               type="button"
               onClick={() => setServings(Math.max(1, servings - 1))}
-              className="w-9 h-9 rounded-lg bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors flex items-center justify-center"
+              className="w-9 h-9 rounded-2xl bg-white/60 text-ink-soft hover:bg-white/80 transition-colors flex items-center justify-center"
             >
               -
             </button>
-            <span className="text-sm font-medium text-stone-800 w-8 text-center">
+            <span className="text-sm font-medium text-ink w-8 text-center">
               {servings}
             </span>
             <button
               type="button"
               onClick={() => setServings(servings + 1)}
-              className="w-9 h-9 rounded-lg bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors flex items-center justify-center"
+              className="w-9 h-9 rounded-2xl bg-white/60 text-ink-soft hover:bg-white/80 transition-colors flex items-center justify-center"
             >
               +
             </button>
@@ -168,7 +168,7 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
         </div>
 
         <div>
-          <label className="text-sm font-medium text-stone-700">조리시간</label>
+          <label className="text-sm font-medium text-ink">조리시간</label>
           <div className="flex items-center gap-2 mt-1.5">
             <input
               type="number"
@@ -178,22 +178,22 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
               className="input-field w-20"
               min={0}
             />
-            <span className="text-sm text-stone-400">분</span>
+            <span className="text-sm text-ink-faint">분</span>
           </div>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-stone-700">난이도</label>
+          <label className="text-sm font-medium text-ink">난이도</label>
           <div className="flex gap-1.5 mt-1.5">
             {DIFFICULTIES.map((d) => (
               <button
                 key={d.value}
                 type="button"
                 onClick={() => setDifficulty(d.value)}
-                className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                className={`px-3 py-2 rounded-2xl text-xs font-medium transition-colors ${
                   difficulty === d.value
-                    ? "bg-stone-800 text-white"
-                    : "bg-stone-100 text-stone-500 hover:bg-stone-200"
+                    ? "bg-ink text-white"
+                    : "bg-white/60 text-ink-soft hover:bg-white/80"
                 }`}
               >
                 {d.label}
@@ -203,19 +203,19 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
         </div>
       </div>
 
-      <hr className="border-stone-100" />
+      <hr className="border-line" />
 
       <IngredientInput ingredients={ingredients} onChange={setIngredients} />
 
-      <hr className="border-stone-100" />
+      <hr className="border-line" />
 
       <StepInput steps={steps} onChange={setSteps} />
 
-      <hr className="border-stone-100" />
+      <hr className="border-line" />
 
       <div>
-        <label className="text-sm font-medium text-stone-700">
-          참고 링크 <span className="text-stone-400 font-normal">(선택)</span>
+        <label className="text-sm font-medium text-ink">
+          참고 링크 <span className="text-ink-faint font-normal">(선택)</span>
         </label>
         <input
           type="url"
