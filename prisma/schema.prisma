@@ -13,6 +13,8 @@ model User {
   nickname  String
   createdAt DateTime @default(now())
   recipes   Recipe[]
+  likes     Like[]
+  comments  Comment[]
 }
 
 model Recipe {
@@ -21,14 +23,44 @@ model Recipe {
   description String?
   servings    Int                @default(1)
   cookTime    Int?
-  difficulty  String             @default("normal")
-  userId      String
+  difficulty    String             @default("normal")
+  referenceUrl  String?
+  userId        String
   user        User               @relation(fields: [userId], references: [id])
   ingredients RecipeIngredient[]
   steps       RecipeStep[]
   images      RecipeImage[]
+  likes       Like[]
+  comments    Comment[]
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  userId    String
+  recipeId  String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, recipeId])
+  @@index([recipeId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String
+  recipeId  String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
 }
 
 model RecipeIngredient {
@@ -39,6 +71,8 @@ model RecipeIngredient {
   order    Int    @default(0)
   recipeId String
   recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
 }
 
 model RecipeStep {
@@ -47,6 +81,8 @@ model RecipeStep {
   order    Int
   recipeId String
   recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
 }
 
 model RecipeImage {
@@ -55,4 +91,6 @@ model RecipeImage {
   order    Int    @default(0)
   recipeId String
   recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
 }

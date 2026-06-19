@@ -39,12 +39,12 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-stone-900 text-center mb-8">
+        <h1 className="text-2xl font-bold text-ink text-center mb-8">
           imchef
         </h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-stone-500 mb-1.5">
+            <label className="block text-xs font-medium text-ink-soft mb-1.5">
               아이디
             </label>
             <input
@@ -59,7 +59,7 @@ export default function SignupPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-stone-500 mb-1.5">
+            <label className="block text-xs font-medium text-ink-soft mb-1.5">
               비밀번호
             </label>
             <input
@@ -73,7 +73,7 @@ export default function SignupPage() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-stone-500 mb-1.5">
+            <label className="block text-xs font-medium text-ink-soft mb-1.5">
               닉네임
             </label>
             <input
@@ -92,9 +92,9 @@ export default function SignupPage() {
             {loading ? "가입 중..." : "회원가입"}
           </button>
         </form>
-        <p className="mt-6 text-center text-sm text-stone-400">
+        <p className="mt-6 text-center text-sm text-ink-faint">
           이미 계정이 있으신가요?{" "}
-          <Link href="/login" className="text-stone-600 hover:text-stone-800 underline">
+          <Link href="/login" className="text-ink-soft hover:text-ink underline">
             로그인
           </Link>
         </p>

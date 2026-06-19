@@ -1,18 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import RecipeCard from "@/components/RecipeCard";
+import Link from "next/link";
+import FeedPost from "@/components/FeedPost";
 import { useAuth } from "@/contexts/AuthContext";
+import { Search } from "@/components/icons";
 
 interface Recipe {
   id: string;
   title: string;
-  cookTime: number | null;
-  difficulty: string;
+  description: string | null;
   user: { nickname: string };
   images: { url: string }[];
   createdAt: string;
+  likeCount?: number;
+  commentCount?: number;
+  likedByMe?: boolean;
 }
 
 export default function MyRecipesPage() {
@@ -20,6 +24,8 @@ export default function MyRecipesPage() {
   const { user, loading: authLoading } = useAuth();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     if (authLoading) return;
@@ -27,56 +33,116 @@ export default function MyRecipesPage() {
       router.push("/login");
       return;
     }
-
-    fetch(`/api/recipes?userId=${user.id}`)
-      .then((r) => r.json())
+    fetch(`/api/recipes?userId=${user.id}&limit=60`)
+      .then(async (r) => {
+        if (!r.ok) throw new Error(`status ${r.status}`);
+        return r.json();
+      })
       .then((data) => {
-        setRecipes(data);
+        setRecipes(Array.isArray(data?.recipes) ? data.recipes : []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError(true);
         setLoading(false);
       });
   }, [user, authLoading, router]);
 
-  if (authLoading || loading) {
-    return (
-      <main className="max-w-5xl mx-auto px-4 py-6 sm:py-10">
-        <div className="text-sm text-stone-400">불러오는 중...</div>
-      </main>
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return recipes;
+    return recipes.filter((r) =>
+      [r.title, r.description ?? ""].join(" ").toLowerCase().includes(q)
     );
-  }
+  }, [recipes, query]);
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-6 sm:py-10">
-      <div className="mb-6 sm:mb-10">
-        <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
-          내 레시피
-        </h1>
-        <p className="mt-1 text-sm text-stone-400">
-          내가 등록한 레시피 목록
-        </p>
+    <main className="max-w-[520px] mx-auto pt-5">
+      {/* Profile header */}
+      <div className="px-4 mb-5">
+        <div className="glass rounded-3xl px-5 py-5 flex items-center justify-between">
+          <div>
+            <p className="text-[18px] font-bold text-ink tracking-tight">
+              {user?.nickname ?? "내 프로필"}
+            </p>
+            <p className="text-xs text-ink-faint mt-0.5">
+              레시피 {recipes.length}개
+            </p>
+          </div>
+          <Link href="/recipes/new" className="btn-primary text-xs">
+            + 등록
+          </Link>
+        </div>
       </div>
 
-      {recipes.length === 0 ? (
-        <div className="text-center py-20">
-          <p className="text-stone-400 text-sm">
-            아직 등록한 레시피가 없습니다.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {recipes.map((recipe) => (
-            <RecipeCard
-              key={recipe.id}
-              id={recipe.id}
-              title={recipe.title}
-              nickname={recipe.user.nickname}
-              cookTime={recipe.cookTime}
-              difficulty={recipe.difficulty}
-              imageUrl={recipe.images[0]?.url || null}
-              createdAt={recipe.createdAt}
+      {recipes.length > 0 && (
+        <div className="px-3 mb-4">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-faint" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="내 레시피 검색"
+              className="input-field pl-11 rounded-full"
             />
-          ))}
+          </div>
         </div>
       )}
+
+      {authLoading || loading ? (
+        <div className="px-3">
+          <div className="aspect-square rounded-[20px] glass animate-pulse" />
+        </div>
+      ) : error ? (
+        <EmptyState emoji="🥕" title="불러오지 못했어요" desc="잠시 후 다시 시도해주세요." />
+      ) : recipes.length === 0 ? (
+        <EmptyState
+          emoji="🍳"
+          title="아직 등록한 레시피가 없어요"
+          desc="첫 레시피를 등록해보세요."
+        />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          emoji="🔍"
+          title="검색 결과가 없어요"
+          desc={`‘${query.trim()}’에 맞는 레시피가 없어요.`}
+        />
+      ) : (
+        filtered.map((r, i) => (
+          <FeedPost
+            key={r.id}
+            id={r.id}
+            title={r.title}
+            nickname={r.user?.nickname ?? user?.nickname ?? "나"}
+            imageUrl={r.images[0]?.url || null}
+            likeCount={r.likeCount}
+            commentCount={r.commentCount}
+            likedByMe={r.likedByMe}
+            priority={i === 0}
+          />
+        ))
+      )}
     </main>
+  );
+}
+
+function EmptyState({
+  emoji,
+  title,
+  desc,
+}: {
+  emoji: string;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <div className="flex flex-col items-center text-center py-20 px-6">
+      <div className="text-4xl mb-4" aria-hidden>
+        {emoji}
+      </div>
+      <p className="text-base font-bold text-ink">{title}</p>
+      <p className="mt-1.5 text-sm text-ink-soft max-w-xs">{desc}</p>
+    </div>
   );
 }

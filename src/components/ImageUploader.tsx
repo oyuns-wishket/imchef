@@ -36,13 +36,13 @@ export default function ImageUploader({ images, onChange, maxImages = 3 }: Props
 
   return (
     <div className="space-y-3">
-      <label className="text-sm font-medium text-stone-700">
+      <label className="text-sm font-medium text-ink">
         사진 ({images.length}/{maxImages})
       </label>
       <div className="flex gap-3 flex-wrap">
         {images.map((url, i) => (
-          <div key={i} className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-stone-100 group">
-            <Image src={url} alt="" fill className="object-cover" />
+          <div key={i} className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-white/60 group">
+            <Image src={url} alt="" fill className="object-contain" />
             <button
               type="button"
               onClick={() => remove(i)}
@@ -57,9 +57,9 @@ export default function ImageUploader({ images, onChange, maxImages = 3 }: Props
         ))}
         {images.length < maxImages && (
           <label
-            className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl border-2 border-dashed border-stone-200
+            className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border-2 border-dashed border-line
                        flex flex-col items-center justify-center cursor-pointer
-                       hover:border-stone-400 transition-colors text-stone-400"
+                       hover:border-[--color-accent] transition-colors text-ink-faint"
           >
             {uploading ? (
               <span className="text-xs">업로드중...</span>

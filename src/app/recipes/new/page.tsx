@@ -20,8 +20,8 @@ export default function NewRecipePage() {
   if (!authorized) return null;
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="text-xl font-bold text-stone-900 mb-8">새 레시피</h1>
+    <main className="max-w-[520px] mx-auto px-4 py-10">
+      <h1 className="text-xl font-bold text-ink mb-8">새 레시피</h1>
       <RecipeForm />
     </main>
   );
