@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
-import Blobs from "@/components/Blobs";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SearchProvider } from "@/contexts/SearchContext";
 import "./globals.css";
@@ -19,7 +18,6 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="min-h-screen">
-        <Blobs />
         <AuthProvider>
           <SearchProvider>
             <Header />

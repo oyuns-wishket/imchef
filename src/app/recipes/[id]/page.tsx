@@ -210,7 +210,7 @@ export default function RecipeDetailPage() {
     <main className="max-w-[520px] mx-auto px-3 pt-3">
       {/* Hero */}
       {recipe.images.length > 0 && (
-        <div className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden bg-[#E6E3DE] mb-5">
+        <div className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden bg-[#f2f2f2] mb-5">
           <Image
             src={recipe.images[imageIndex].url}
             alt={recipe.title}
@@ -303,7 +303,7 @@ export default function RecipeDetailPage() {
             <li
               key={ing.id}
               className="flex justify-between items-center px-4 py-3 border-b last:border-b-0"
-              style={{ borderColor: "rgba(255,255,255,0.5)" }}
+              style={{ borderColor: "var(--color-line)" }}
             >
               <span className="text-[13px] text-ink font-medium">{ing.name}</span>
               <span className="text-xs text-ink-faint">
@@ -343,12 +343,7 @@ export default function RecipeDetailPage() {
             href={recipe.referenceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-3 rounded-2xl text-[13px] font-medium break-all"
-            style={{
-              color: "var(--color-accent)",
-              background: "rgba(217,123,90,0.10)",
-              border: "1px solid rgba(217,123,90,0.20)",
-            }}
+            className="flex items-center gap-2 px-4 py-3 rounded-2xl text-[13px] font-medium break-all glass text-ink hover:bg-[#fafafa] transition-colors"
           >
             <LinkIcon className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="line-clamp-1">{recipe.referenceUrl}</span>

@@ -74,7 +74,7 @@ export default function FeedPost({
     <article className="px-3 mb-5">
       <Link href={`/recipes/${id}`} className="block">
         {imageUrl ? (
-          <div className="relative aspect-square rounded-[20px] overflow-hidden bg-[#E0DDD8]">
+          <div className="relative aspect-square rounded-[20px] overflow-hidden bg-[#f2f2f2]">
             <Image
               src={imageUrl}
               alt={title}
