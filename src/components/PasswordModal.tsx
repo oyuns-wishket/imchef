@@ -36,11 +36,11 @@ export default function PasswordModal({ action, onConfirm, onCancel }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-xl">
-        <h2 className="text-lg font-bold text-stone-900 mb-2">
+      <div className="glass rounded-2xl p-6 w-full max-w-sm mx-4 shadow-xl">
+        <h2 className="text-lg font-bold text-ink mb-2">
           {action === "delete" ? "레시피 삭제" : "레시피 수정"}
         </h2>
-        <p className="text-sm text-stone-500 mb-5">
+        <p className="text-sm text-ink-soft mb-5">
           본인 확인을 위해 비밀번호를 입력해주세요.
         </p>
         <form onSubmit={handleVerify} className="space-y-4">

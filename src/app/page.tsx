@@ -1,79 +1,181 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import RecipeCard from "@/components/RecipeCard";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffect, useMemo, useRef, useState } from "react";
+import FeedPost from "@/components/FeedPost";
+import { useSearch } from "@/contexts/SearchContext";
+import { Search } from "@/components/icons";
 
 interface Recipe {
   id: string;
   title: string;
-  cookTime: number | null;
-  difficulty: string;
+  description: string | null;
   user: { nickname: string };
   images: { url: string }[];
   createdAt: string;
+  likeCount?: number;
+  commentCount?: number;
+  likedByMe?: boolean;
 }
 
 export default function Home() {
-  const { user } = useAuth();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState(false);
+  const { open: searchOpen, query, setQuery } = useSearch();
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  // Focus the field as it slides in; clear the query when it slides away.
+  useEffect(() => {
+    if (searchOpen) searchRef.current?.focus();
+    else setQuery("");
+  }, [searchOpen, setQuery]);
 
   useEffect(() => {
-    fetch("/api/recipes")
-      .then((r) => r.json())
+    fetch("/api/recipes?limit=30")
+      .then(async (r) => {
+        if (!r.ok) throw new Error(`status ${r.status}`);
+        return r.json();
+      })
       .then((data) => {
-        setRecipes(data);
+        setRecipes(Array.isArray(data?.recipes) ? data.recipes : []);
+        setNextCursor(data?.nextCursor ?? null);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError(true);
         setLoading(false);
       });
   }, []);
 
+  async function loadMore() {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const r = await fetch(`/api/recipes?limit=30&cursor=${nextCursor}`);
+      if (!r.ok) throw new Error(`status ${r.status}`);
+      const data = await r.json();
+      setRecipes((prev) => [
+        ...prev,
+        ...(Array.isArray(data?.recipes) ? data.recipes : []),
+      ]);
+      setNextCursor(data?.nextCursor ?? null);
+    } catch {
+      /* keep what we have */
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return recipes;
+    return recipes.filter((r) =>
+      [r.title, r.user?.nickname, r.description ?? ""]
+        .join(" ")
+        .toLowerCase()
+        .includes(q)
+    );
+  }, [recipes, query]);
+
+  const searching = query.trim().length > 0;
+
   return (
-    <main className="max-w-5xl mx-auto px-4 py-6 sm:py-10">
-      <div className="flex items-end justify-between mb-6 sm:mb-10">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
-            레시피
-          </h1>
-          <p className="mt-1 text-sm text-stone-400">
-            모든 레시피를 둘러보세요
-          </p>
+    <main className="max-w-[520px] mx-auto pt-3">
+      {/* Search — slides in when 돋보기 is tapped */}
+      <div
+        className={`px-3 overflow-hidden transition-all duration-300 ease-out ${
+          searchOpen ? "max-h-20 opacity-100 mb-4" : "max-h-0 opacity-0 mb-0"
+        }`}
+      >
+        <div className="relative pt-1">
+          <Search className="absolute left-4 top-1/2 translate-y-[2px] w-4 h-4 text-ink-faint" />
+          <input
+            ref={searchRef}
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="레시피, 재료, 셰프 검색"
+            className="input-field pl-11 rounded-full"
+          />
         </div>
-        {user && (
-          <Link
-            href="/recipes/new"
-            className="text-sm text-stone-500 hover:text-stone-800 transition-colors"
-          >
-            + 등록
-          </Link>
-        )}
       </div>
 
       {loading ? (
-        <div className="text-sm text-stone-400">불러오는 중...</div>
-      ) : recipes.length === 0 ? (
-        <div className="text-center py-20">
-          <p className="text-stone-400 text-sm">
-            아직 등록된 레시피가 없습니다.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {recipes.map((recipe) => (
-            <RecipeCard
-              key={recipe.id}
-              id={recipe.id}
-              title={recipe.title}
-              nickname={recipe.user.nickname}
-              cookTime={recipe.cookTime}
-              difficulty={recipe.difficulty}
-              imageUrl={recipe.images[0]?.url || null}
-              createdAt={recipe.createdAt}
-            />
+        <div className="px-3 space-y-5">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i}>
+              <div className="aspect-square rounded-[20px] glass animate-pulse" />
+              <div className="h-3.5 w-2/3 rounded bg-white/50 animate-pulse mt-3" />
+            </div>
           ))}
         </div>
+      ) : error ? (
+        <EmptyState
+          emoji="🥕"
+          title="레시피를 불러오지 못했어요"
+          desc="일시적인 오류일 수 있어요. 잠시 후 다시 시도해주세요."
+        />
+      ) : filtered.length === 0 ? (
+        searching ? (
+          <EmptyState
+            emoji="🔍"
+            title="검색 결과가 없어요"
+            desc={`‘${query.trim()}’에 맞는 레시피를 찾지 못했어요.`}
+          />
+        ) : (
+          <EmptyState
+            emoji="🍳"
+            title="아직 레시피가 없어요"
+            desc="첫 번째 레시피를 올려 커뮤니티를 시작해보세요."
+          />
+        )
+      ) : (
+        <>
+          {filtered.map((r, i) => (
+            <FeedPost
+              key={r.id}
+              id={r.id}
+              title={r.title}
+              nickname={r.user?.nickname ?? "익명"}
+              imageUrl={r.images[0]?.url || null}
+              likeCount={r.likeCount}
+              commentCount={r.commentCount}
+              likedByMe={r.likedByMe}
+              priority={i === 0}
+            />
+          ))}
+
+          {!searching && nextCursor && (
+            <div className="flex justify-center mt-2 mb-4">
+              <button onClick={loadMore} disabled={loadingMore} className="btn-secondary">
+                {loadingMore ? "불러오는 중…" : "더 보기"}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </main>
+  );
+}
+
+function EmptyState({
+  emoji,
+  title,
+  desc,
+}: {
+  emoji: string;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <div className="flex flex-col items-center text-center py-24 px-6">
+      <div className="text-4xl mb-4" aria-hidden>
+        {emoji}
+      </div>
+      <p className="text-base font-bold text-ink">{title}</p>
+      <p className="mt-1.5 text-sm text-ink-soft max-w-xs">{desc}</p>
+    </div>
   );
 }

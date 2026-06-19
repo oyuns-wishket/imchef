@@ -13,6 +13,8 @@ model User {
   nickname  String
   createdAt DateTime @default(now())
   recipes   Recipe[]
+  likes     Like[]
+  comments  Comment[]
 }
 
 model Recipe {
@@ -28,11 +30,37 @@ model Recipe {
   ingredients RecipeIngredient[]
   steps       RecipeStep[]
   images      RecipeImage[]
+  likes       Like[]
+  comments    Comment[]
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
 
   @@index([userId])
   @@index([createdAt])
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  userId    String
+  recipeId  String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, recipeId])
+  @@index([recipeId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String
+  recipeId  String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
 }
 
 model RecipeIngredient {
