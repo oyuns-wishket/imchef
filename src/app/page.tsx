@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import FeedPost from "@/components/FeedPost";
+import { useSearch } from "@/contexts/SearchContext";
 import { Search } from "@/components/icons";
 
 interface Recipe {
@@ -22,7 +23,14 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(false);
-  const [query, setQuery] = useState("");
+  const { open: searchOpen, query, setQuery } = useSearch();
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  // Focus the field as it slides in; clear the query when it slides away.
+  useEffect(() => {
+    if (searchOpen) searchRef.current?.focus();
+    else setQuery("");
+  }, [searchOpen, setQuery]);
 
   useEffect(() => {
     fetch("/api/recipes?limit=30")
@@ -75,11 +83,16 @@ export default function Home() {
 
   return (
     <main className="max-w-[520px] mx-auto pt-3">
-      {/* Slim frosted search */}
-      <div className="px-3 mb-4">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-faint" />
+      {/* Search — slides in when 돋보기 is tapped */}
+      <div
+        className={`px-3 overflow-hidden transition-all duration-300 ease-out ${
+          searchOpen ? "max-h-20 opacity-100 mb-4" : "max-h-0 opacity-0 mb-0"
+        }`}
+      >
+        <div className="relative pt-1">
+          <Search className="absolute left-4 top-1/2 translate-y-[2px] w-4 h-4 text-ink-faint" />
           <input
+            ref={searchRef}
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
