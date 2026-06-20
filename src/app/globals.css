@@ -56,15 +56,18 @@
   to { transform: rotate(360deg); }
 }
 
-/* Spinner arc 회전 */
-.spinner-arc {
+/* Spinner 회전 — circle 단독 회전은 transform-origin 해석이 브라우저마다 달라
+   멈춰 보이므로 svg 전체를 회전시킨다 */
+.spinner-svg {
   transform-origin: center;
+  transform-box: fill-box;
   animation: spin 0.8s linear infinite;
+  will-change: transform;
 }
 
 /* prefers-reduced-motion: 회전·펄스 제거, 정적 표시 폴백 */
 @media (prefers-reduced-motion: reduce) {
-  .spinner-arc {
+  .spinner-svg {
     animation: none;
   }
   .skeleton-item {
@@ -90,7 +93,7 @@
   margin-bottom: 24px;
 }
 
-/* URL 입력 박스 */
+/* URL 입력 박스 — 시안: border-radius 20px, padding 16px, gap 10px */
 .url-import-box {
   background: #ffffff;
   border: 1px solid var(--color-edge);
@@ -109,36 +112,66 @@
   color: var(--color-ink-faint);
 }
 
+/* URL 인풋 — 시안: background #fafafa, color ink-soft, font-size 13px */
 .url-import-input {
-  margin-bottom: 0;
+  width: 100%;
+  border: 1px solid var(--color-edge);
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-family: var(--font-sans);
   font-size: 13px;
+  color: var(--color-ink-soft);
+  background: #fafafa;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.url-import-input::placeholder {
+  color: var(--color-ink-faint);
+}
+.url-import-input:focus {
+  border-color: #141414;
+  box-shadow: 0 0 0 3px rgba(20, 20, 20, 0.08);
 }
 
-/* AI 자동생성 버튼 */
+/* AI 자동생성 버튼 공통 — 시안: border-radius 12px (not pill) */
 .url-import-btn {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 600;
   border-radius: 12px;
   padding: 13px 16px;
   letter-spacing: -0.01em;
+  cursor: pointer;
   transition: background 0.15s, opacity 0.15s;
 }
 
-/* 버튼 내 회전 스피너 */
-.url-import-btn-spinner {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  flex-shrink: 0;
+/* 기본(idle) — 흑배경 흰글씨 */
+.url-import-btn--primary {
+  background: var(--color-ink);
+  border: 1px solid var(--color-ink);
+  color: #ffffff;
+}
+.url-import-btn--primary:hover:not(:disabled) {
+  background: #000000;
+}
+.url-import-btn--primary:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+/* 완료 후 — #383838 배경 (시안과 동일) */
+.url-import-btn--done {
+  background: #383838;
+  border: 1px solid #383838;
+  color: #ffffff;
+}
+.url-import-btn--done:hover {
+  background: #2a2a2a;
 }
 
 /* ── v2 스캔라인 로더 ── */
@@ -148,8 +181,8 @@
 }
 
 @keyframes v2-bar {
-  0%   { width: 15%; }
-  100% { width: 85%; }
+  0%   { width: 20%; }
+  100% { width: 82%; }
 }
 
 @keyframes v2-blink {
@@ -157,20 +190,20 @@
   50%       { opacity: 0.2; }
 }
 
+/* 로더 래퍼 — 시안: url-box 영역을 완전히 대체 */
 .v2-loader {
   background: #ffffff;
   border: 1px solid var(--color-edge);
   border-radius: 20px;
   overflow: hidden;
-  margin-top: 10px;
   position: relative;
   animation: rise 0.25s ease both;
 }
 
-/* 썸네일 영역 */
+/* 썸네일 영역 — 시안: height 140px */
 .v2-thumb {
   width: 100%;
-  height: 120px;
+  height: 140px;
   background: #f5f5f5;
   display: flex;
   align-items: center;
@@ -215,9 +248,9 @@
   animation: v2-sweep 1.8s ease-in-out infinite;
 }
 
-/* 정보 영역 */
+/* 정보 영역 — 시안: padding 14px 16px 18px */
 .v2-info {
-  padding: 14px 16px 16px;
+  padding: 14px 16px 18px;
 }
 
 /* URL 칩 */
@@ -251,6 +284,7 @@
   max-width: 220px;
 }
 
+/* 단계 상태 텍스트 */
 .v2-status {
   font-size: 13px;
   font-weight: 500;
@@ -279,7 +313,7 @@
   animation: v2-bar 2.4s ease-in-out infinite alternate;
 }
 
-/* ── 완료 배너 ── */
+/* ── 완료 배너 — 시안: url-box 바로 아래, margin-bottom 16px */
 .url-import-done-banner {
   display: flex;
   align-items: center;
@@ -288,6 +322,7 @@
   border: 1px solid var(--color-line);
   border-radius: 12px;
   margin-top: 10px;
+  margin-bottom: 16px;
   font-size: 11px;
   color: var(--color-ink-soft);
   background: #fafafa;
@@ -339,7 +374,7 @@
   color: var(--color-ink-soft);
 }
 
-/* ── 재시도 버튼 (에러/부분) ── */
+/* ── 재시도 버튼 (에러 상태에서만 사용) ── */
 .url-import-retry-btn {
   flex-shrink: 0;
   font-size: 11px;

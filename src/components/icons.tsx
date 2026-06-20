@@ -132,8 +132,9 @@ export function LinkIcon(props: P) {
 
 export function Sparkle(props: P) {
   return (
-    <svg {...base} strokeWidth={1.5} {...props}>
-      <path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.3L12 16.5l-6.2 4.5 2.4-7.3L2 9.2h7.6z" />
+    <svg {...base} strokeWidth={1.5} fill="currentColor" stroke="none" {...props}>
+      {/* 4-point sparkle: vertical diamond + horizontal diamond overlaid */}
+      <path d="M12 2 C12 2 11.1 7.6 9.2 9.2 C7.3 10.8 2 12 2 12 C2 12 7.3 13.2 9.2 14.8 C11.1 16.4 12 22 12 22 C12 22 12.9 16.4 14.8 14.8 C16.7 13.2 22 12 22 12 C22 12 16.7 10.8 14.8 9.2 C12.9 7.6 12 2 12 2 Z" />
     </svg>
   );
 }

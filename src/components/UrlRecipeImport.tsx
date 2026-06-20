@@ -17,7 +17,8 @@ export interface ImportedRecipe {
 
 type ImportStatus = "idle" | "analyzing" | "filled" | "partial" | "error";
 
-const STAGES = ["링크 여는 중", "콘텐츠 분석 중", "레시피 정리 중"] as const;
+// 시안 2 단계 텍스트 — 영상/블로그 콘텐츠 처리 흐름
+const STAGES = ["영상 콘텐츠 확인 중", "재료 정보 추출 중", "레시피 정리 중"] as const;
 
 // ─── 헬퍼 ─────────────────────────────────────────────────────────────────────
 
@@ -125,53 +126,12 @@ export default function UrlRecipeImport({ onResult }: Props) {
   }
 
   const isAnalyzing = status === "analyzing";
+  const isDone = status === "filled" || status === "partial";
 
   return (
     <div className="url-import-root">
-      {/* ── URL 입력 박스 ── */}
-      <div className="url-import-box">
-        <div className="url-import-label">AI 자동생성</div>
-
-        <input
-          type="url"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              handleAnalyze();
-            }
-          }}
-          placeholder="영상/블로그 링크를 붙여넣어 주세요"
-          className="input-field url-import-input"
-          disabled={isAnalyzing}
-          aria-label="레시피 URL 입력"
-          autoComplete="off"
-        />
-
-        <button
-          type="button"
-          onClick={handleAnalyze}
-          disabled={!urlValid || isAnalyzing}
-          className="url-import-btn btn-primary"
-          aria-busy={isAnalyzing}
-        >
-          {isAnalyzing ? (
-            <>
-              <span className="url-import-btn-spinner" aria-hidden="true" />
-              분석 중...
-            </>
-          ) : (
-            <>
-              <SparkleIcon />
-              링크 등록하고 AI 레시피 자동생성
-            </>
-          )}
-        </button>
-      </div>
-
-      {/* ── 시안 2: 스캔라인 Sweep 로더 ── */}
-      {isAnalyzing && (
+      {/* ── 시안 2: 분석 중 — URL 박스 대신 스캔라인 로더 전환 ── */}
+      {isAnalyzing ? (
         <div className="v2-loader" role="status" aria-live="polite">
           {/* 썸네일 영역 + 스캔 빔 */}
           <div className="v2-thumb" aria-hidden="true">
@@ -193,6 +153,50 @@ export default function UrlRecipeImport({ onResult }: Props) {
               <div className="v2-bar-fill" />
             </div>
           </div>
+        </div>
+      ) : (
+        /* ── URL 입력 박스 (idle / filled / partial / error) ── */
+        <div className="url-import-box">
+          <div className="url-import-label">AI 자동생성</div>
+
+          <input
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAnalyze();
+              }
+            }}
+            placeholder="영상/블로그 링크를 붙여넣어 주세요"
+            className="url-import-input"
+            aria-label="레시피 URL 입력"
+            autoComplete="off"
+          />
+
+          {/* 완료 후: "다른 링크로 다시 생성" 버튼 */}
+          {isDone ? (
+            <button
+              type="button"
+              onClick={handleRetry}
+              className="url-import-btn url-import-btn--done"
+            >
+              <CheckIcon />
+              다른 링크로 다시 생성
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleAnalyze}
+              disabled={!urlValid}
+              className="url-import-btn url-import-btn--primary"
+              aria-busy={false}
+            >
+              <SparkleIcon />
+              링크 등록하고 AI 레시피 자동생성
+            </button>
+          )}
         </div>
       )}
 
@@ -225,13 +229,6 @@ export default function UrlRecipeImport({ onResult }: Props) {
               </p>
             )}
           </div>
-          <button
-            type="button"
-            onClick={handleRetry}
-            className="url-import-retry-btn"
-          >
-            다시 시도
-          </button>
         </div>
       )}
 

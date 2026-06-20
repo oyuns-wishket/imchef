@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SearchProvider } from "@/contexts/SearchContext";
+import { OverlayProvider } from "@/contexts/OverlayContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,9 +21,11 @@ export default function RootLayout({
       <body className="min-h-screen">
         <AuthProvider>
           <SearchProvider>
-            <Header />
-            <div className="pb-28">{children}</div>
-            <BottomNav />
+            <OverlayProvider>
+              <Header />
+              <div className="pb-28">{children}</div>
+              <BottomNav />
+            </OverlayProvider>
           </SearchProvider>
         </AuthProvider>
       </body>

@@ -5,12 +5,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSearch } from "@/contexts/SearchContext";
+import { useOverlay } from "@/contexts/OverlayContext";
 import { Search, Heart, PaperPlane, Person } from "@/components/icons";
 
 export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth();
+  const { active: overlayActive } = useOverlay();
   const { open: searchOpen, toggle: toggleSearch, setOpen: setSearchOpen, query, setQuery } = useSearch();
 
   const profileHref = user ? "/my-recipes" : "/login";
@@ -91,6 +93,9 @@ export default function BottomNav() {
     setQuery("");
     inputRef.current?.focus();
   }
+
+  // 풀스크린 오버레이(AI 이미지 생성 등)가 열려 있으면 푸터 숨김
+  if (overlayActive) return null;
 
   return (
     <nav

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Spinner from "@/components/ui/Spinner";
 import Skeleton from "@/components/ui/Skeleton";
 import { Sparkle, Check } from "@/components/icons";
+import { useOverlayActive } from "@/contexts/OverlayContext";
 
 type GenStatus = "idle" | "generating" | "done" | "error";
 
@@ -23,6 +24,9 @@ export default function AiImageGenerator({
   onSelect,
   onClose,
 }: Props) {
+  // 오버레이 활성 — 하단 BottomNav 숨김
+  useOverlayActive();
+
   const [prompt, setPrompt] = useState("");
   const [status, setStatus] = useState<GenStatus>("idle");
   const [candidates, setCandidates] = useState<string[]>([]);
@@ -121,9 +125,8 @@ export default function AiImageGenerator({
       aria-modal="true"
       aria-label="AI 이미지 생성"
       className="fixed inset-0 z-50 flex items-end justify-center"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
-      {/* 블러 오버레이 — 클릭 시 닫기 */}
+      {/* 풀스크린 블러 백드롭 — 클릭 시 닫기 */}
       <div
         className="absolute inset-0"
         style={{
@@ -135,31 +138,48 @@ export default function AiImageGenerator({
         aria-hidden="true"
       />
 
-      {/* 바텀 시트 카드 */}
+      {/* 바텀 시트 — 시안 1 .glass-card */}
       <div
-        className="relative z-10 w-full max-w-lg bg-white rounded-[28px_28px_0_0] flex flex-col"
+        className="relative z-10 w-full max-w-lg bg-white flex flex-col"
         style={{
+          borderRadius: "28px 28px 0 0",
           border: "1px solid var(--color-edge)",
           borderBottom: "none",
           animation: "rise 0.3s cubic-bezier(0.22, 0.68, 0, 1.2) both",
           maxHeight: "85vh",
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* 헤더 */}
+        {/* 헤더 — panel-header: padding 18px 20px 14px */}
         <div
-          className="flex items-center justify-between px-5 py-4"
-          style={{ borderBottom: "1px solid var(--color-line)" }}
+          className="flex items-center justify-between"
+          style={{
+            padding: "18px 20px 14px",
+            borderBottom: "1px solid var(--color-line)",
+            flexShrink: 0,
+          }}
         >
-          <span className="flex items-center gap-2 text-sm font-bold text-ink tracking-tight">
-            <Sparkle className="w-3.5 h-3.5 text-ink" />
+          <span
+            className="flex items-center text-ink font-bold"
+            style={{ fontSize: "15px", letterSpacing: "-0.02em", gap: "5px" }}
+          >
+            <Sparkle
+              style={{ display: "inline", verticalAlign: "middle", width: 14, height: 14 }}
+              aria-hidden="true"
+            />
             AI 이미지 생성
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-full transition-colors hover:bg-black/5"
-            style={{ border: "1px solid var(--color-edge)" }}
+            className="flex items-center justify-center transition-colors hover:bg-black/5"
+            style={{
+              width: 28,
+              height: 28,
+              border: "1px solid var(--color-edge)",
+              borderRadius: "50%",
+            }}
             aria-label="닫기"
           >
             <svg
@@ -177,8 +197,11 @@ export default function AiImageGenerator({
           </button>
         </div>
 
-        {/* 프롬프트 입력 */}
-        <div className="flex gap-2 items-start px-4 py-3">
+        {/* 프롬프트 행 — prompt-wrap: padding 14px 16px 10px */}
+        <div
+          className="flex items-start"
+          style={{ padding: "14px 16px 10px", gap: 8, flexShrink: 0 }}
+        >
           <input
             ref={promptRef}
             type="text"
@@ -190,42 +213,79 @@ export default function AiImageGenerator({
             placeholder="어떤 이미지가 나왔으면 좋겠는지 입력"
             disabled={isGenerating}
             maxLength={500}
-            className="flex-1 input-field py-2.5 text-sm"
-            style={{ minWidth: 0 }}
+            className="input-field"
+            style={{
+              flex: 1,
+              minWidth: 0,
+              fontSize: 13,
+              padding: "11px 14px",
+            }}
           />
+          {/* btn-gen — 시안 1: height 38px, pill, gap 6px */}
           <button
             type="button"
             onClick={generate}
             disabled={!canGenerate}
-            className="btn-primary flex items-center gap-1.5 py-2.5 px-4 text-sm whitespace-nowrap flex-shrink-0"
-            style={isGenerating ? { opacity: 0.5 } : undefined}
+            className="flex items-center justify-center flex-shrink-0 transition-all active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+              padding: "0 18px",
+              height: 38,
+              borderRadius: 99,
+              fontSize: 13,
+              fontWeight: 600,
+              background: isGenerating ? "var(--color-ink-soft)" : "var(--color-ink)",
+              color: "#fff",
+              border: isGenerating
+                ? "1px solid var(--color-ink-soft)"
+                : "1px solid var(--color-ink)",
+              whiteSpace: "nowrap",
+            }}
           >
-            <Sparkle className="w-3 h-3" />
-            {isGenerating ? "생성 중..." : "생성"}
+            <Sparkle style={{ width: 12, height: 12 }} aria-hidden="true" />
+            <span>{isGenerating ? "생성 중" : status === "done" ? "재생성" : status === "error" ? "재시도" : "생성"}</span>
           </button>
         </div>
 
         {/* 후보 영역 — 스크롤 가능 */}
-        <div className="flex-1 overflow-y-auto px-4 pb-2" style={{ minHeight: 0 }}>
+        <div
+          className="overflow-y-auto"
+          style={{ flex: 1, minHeight: 0 }}
+        >
           {/* idle 상태: 안내 문구 */}
           {status === "idle" && (
-            <p className="text-center text-sm text-ink-faint py-8 leading-relaxed">
-              프롬프트를 입력하고 생성하세요
+            <p
+              className="text-center leading-relaxed"
+              style={{
+                fontSize: 12,
+                color: "var(--color-ink-faint)",
+                padding: "20px 16px",
+                lineHeight: 1.7,
+              }}
+            >
+              프롬프트를 입력하고 생성 버튼을 눌러주세요
             </p>
           )}
 
-          {/* generating 또는 done/partial: 그리드 */}
+          {/* generating 또는 done/partial: 그리드 — cand-grid: padding 0 16px 4px */}
           {(isGenerating || isDone || isPartial) && (
             <>
-              <div className="grid grid-cols-2 gap-2 py-2">
+              <div
+                className="grid grid-cols-2"
+                style={{ gap: 8, padding: "0 16px 4px" }}
+              >
                 {/* 도착한 후보 이미지 */}
                 {candidates.map((url, i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => handleSelect(i)}
-                    className="relative aspect-square rounded-2xl overflow-hidden transition-transform active:scale-[0.97]"
+                    className="relative aspect-square overflow-hidden transition-transform active:scale-[0.97] hover:scale-[0.98]"
                     style={{
+                      borderRadius: 14,
                       border:
                         selectedIndex === i
                           ? "2px solid var(--color-ink)"
@@ -240,61 +300,118 @@ export default function AiImageGenerator({
                       fill
                       className="object-cover"
                     />
+                    {/* check-badge: top 6px right 6px, 20x20, bg-ink, rounded-full */}
                     {selectedIndex === i && (
-                      <span className="absolute top-1.5 right-1.5 w-5 h-5 bg-ink rounded-full flex items-center justify-center">
-                        <Check className="w-3 h-3 text-white" />
+                      <span
+                        className="absolute flex items-center justify-center bg-ink rounded-full"
+                        style={{ top: 6, right: 6, width: 20, height: 20 }}
+                      >
+                        <Check
+                          style={{ width: 10, height: 10, color: "#fff" }}
+                        />
                       </span>
                     )}
                   </button>
                 ))}
 
-                {/* 미도착 스켈레톤 타일 */}
+                {/* 미도착 스켈레톤 타일 — skeleton + spinner-wrap */}
                 {isGenerating &&
                   Array.from({
                     length: Math.max(0, expectedCount - candidates.length),
                   }).map((_, i) => (
                     <div
                       key={`skel-${i}`}
-                      className="relative aspect-square rounded-2xl overflow-hidden"
-                      style={{ border: "1.5px solid var(--color-line)" }}
+                      className="relative aspect-square overflow-hidden"
+                      style={{
+                        borderRadius: 14,
+                        border: "1.5px solid var(--color-line)",
+                      }}
                     >
                       <Skeleton
                         variant="block"
                         aspectRatio="1 / 1"
                         className="!rounded-none"
                       />
-                      <div className="absolute inset-0 flex items-center justify-center bg-white/50">
+                      {/* spinner-wrap: inset-0 flex center, bg white/50 */}
+                      <div
+                        className="absolute inset-0 flex items-center justify-center"
+                        style={{ background: "rgba(255,255,255,0.5)" }}
+                      >
                         <Spinner size="md" label="이미지 생성 중" />
                       </div>
                     </div>
                   ))}
               </div>
 
+              {/* progress-label: 시안 font-size 11px, color ink-soft, center, padding 6px 0 2px */}
               {isGenerating && (
-                <p className="text-center text-xs text-ink-soft pb-2 tracking-wide">
+                <p
+                  className="text-center"
+                  style={{
+                    fontSize: 11,
+                    color: "var(--color-ink-soft)",
+                    padding: "6px 0 2px",
+                    letterSpacing: "0.04em",
+                  }}
+                >
                   이미지를 생성하는 중이에요...
+                </p>
+              )}
+
+              {isDone && selectedIndex === null && (
+                <p
+                  className="text-center"
+                  style={{
+                    fontSize: 11,
+                    color: "var(--color-ink-soft)",
+                    padding: "6px 0 2px",
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  마음에 드는 이미지를 선택하세요
                 </p>
               )}
             </>
           )}
 
-          {/* 에러 상태 */}
+          {/* 에러 상태 — error-block: margin 10px 16px, padding 12px 14px, radius 14px */}
           {isError && (
             <div
-              className="my-2 p-4 rounded-2xl flex flex-col gap-3"
+              className="flex flex-col"
               style={{
+                margin: "10px 16px",
+                padding: "12px 14px",
                 background: "rgba(20,20,20,0.04)",
                 border: "1px solid rgba(20,20,20,0.16)",
+                borderRadius: 14,
+                gap: 8,
               }}
             >
-              <p className="text-sm text-ink-soft leading-relaxed">
+              <p
+                className="leading-snug"
+                style={{
+                  fontSize: 12,
+                  color: "var(--color-ink-soft)",
+                  lineHeight: 1.55,
+                }}
+              >
                 {errorMessage}
               </p>
+              {/* btn-retry: border 1px edge, radius 99px, font-size 12px, font-weight 600 */}
               <button
                 type="button"
                 onClick={generate}
-                className="self-start text-xs font-semibold px-4 py-1.5 rounded-full transition-colors"
-                style={{ border: "1px solid var(--color-edge)" }}
+                className="self-start transition-colors hover:bg-black/5"
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  background: "none",
+                  border: "1px solid var(--color-edge)",
+                  borderRadius: 99,
+                  padding: "5px 14px",
+                  color: "var(--color-ink)",
+                  cursor: "pointer",
+                }}
               >
                 다시 시도
               </button>
@@ -302,19 +419,32 @@ export default function AiImageGenerator({
           )}
         </div>
 
-        {/* 푸터 */}
+        {/* 푸터 — panel-footer: padding 10px 16px 16px, gap 8px */}
         <div
-          className="flex gap-2 px-4 pt-2.5 pb-4"
-          style={{ borderTop: "1px solid var(--color-line)" }}
+          className="flex"
+          style={{
+            gap: 8,
+            padding: "10px 16px 16px",
+            borderTop: "1px solid var(--color-line)",
+            flexShrink: 0,
+          }}
         >
-          <button type="button" onClick={onClose} className="btn-secondary py-2.5 text-sm">
+          {/* 취소: flex 0 0 auto (너비 고정 pill) */}
+          <button
+            type="button"
+            onClick={onClose}
+            className="btn-secondary"
+            style={{ flex: "0 0 auto", height: 44, padding: "0 20px" }}
+          >
             취소
           </button>
+          {/* 이 사진 사용: flex 1 */}
           <button
             type="button"
             onClick={handleConfirm}
             disabled={selectedIndex === null}
-            className="btn-primary flex-1 py-2.5 text-sm"
+            className="btn-primary"
+            style={{ flex: 1, height: 44, padding: "0 20px" }}
           >
             이 사진 사용
           </button>
