@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Im Chef — AI 이미지 생성 디자인 시안 5종</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+/* ─── RESET + TOKENS ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:        #141414;
+  --ink-soft:   #565656;
+  --ink-faint:  #9a9a9a;
+  --base:       #ffffff;
+  --line:       rgba(20,20,20,0.13);
+  --edge:       rgba(20,20,20,0.85);
+
+  --font: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  --frame-w: 420px;
+  --frame-h: 780px;
+  --radius-frame: 44px;
+}
+
+html, body {
+  min-height: 100vh;
+  background: #e8e8e8;
+  background-image: repeating-linear-gradient(0deg, rgba(20,20,20,.03) 0, rgba(20,20,20,.03) 1px, transparent 1px, transparent 40px);
+  font-family: var(--font);
+  color: var(--ink);
+  padding: 60px 40px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 80px;
+}
+
+/* ─── PAGE HEADER ─── */
+.page-header {
+  text-align: center;
+}
+.page-header h1 {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+.page-header p {
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: .04em;
+}
+
+/* ─── SECTION LABEL ─── */
+.section-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: calc(var(--frame-w) * 2 + 60px);
+}
+.section-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+.section-label strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: .02em;
+  text-transform: none;
+}
+.section-label em {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+/* ─── FRAME ROW ─── */
+.frame-row {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.frame-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.frame-caption {
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ─── PHONE FRAME ─── */
+.phone {
+  width: var(--frame-w);
+  height: var(--frame-h);
+  border-radius: var(--radius-frame);
+  background: var(--base);
+  border: 1.5px solid rgba(20,20,20,.22);
+  box-shadow: 0 2px 40px rgba(20,20,20,.10), 0 0 0 6px rgba(255,255,255,.9);
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+/* notch bar */
+.phone::before {
+  content: '';
+  position: absolute;
+  top: 14px; left: 50%; transform: translateX(-50%);
+  width: 90px; height: 5px;
+  background: rgba(20,20,20,.18);
+  border-radius: 99px;
+  z-index: 100;
+}
+
+/* ─── SHARED FORM BASE (recipe form behind overlay) ─── */
+.form-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.form-header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 52px;
+  background: var(--base);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 1;
+}
+.form-header-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+.form-body {
+  position: absolute;
+  top: 52px; bottom: 0; left: 0; right: 0;
+  overflow: hidden;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  filter: none;
+  transition: filter .3s;
+}
+.form-body.blurred {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Recipe title mock */
+.mock-field {
+  border: 1px solid var(--edge);
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--ink);
+  font-family: var(--font);
+}
+.mock-field.placeholder { color: var(--ink-faint); }
+.mock-field.filled { color: var(--ink); }
+
+/* Photo strip (existing thumbnails + add tiles) */
+.photo-strip {
+  display: flex;
+  gap: 8px;
+}
+.photo-thumb {
+  width: 80px; height: 80px;
+  border-radius: 14px;
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+.photo-thumb-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  background: linear-gradient(135deg, #e8e4dc, #cdc7bb);
+}
+/* CSS food images */
+.food-1 { background: linear-gradient(145deg,#e8d5b7 0%,#c4a882 40%,#8b6640 100%); }
+.food-2 { background: linear-gradient(135deg,#dde8d0 0%,#a5c281 50%,#6b9e3a 100%); }
+
+.add-tile {
+  width: 80px; height: 80px;
+  border-radius: 14px;
+  border: 1px dashed rgba(20,20,20,.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-shrink: 0;
+  cursor: pointer;
+  background: transparent;
+  font-family: var(--font);
+  transition: background .15s;
+}
+.add-tile:hover { background: rgba(20,20,20,.04); }
+.add-tile-icon {
+  color: var(--ink-faint);
+  font-size: 20px;
+  line-height: 1;
+}
+.add-tile-label {
+  font-size: 9px;
+  color: var(--ink-faint);
+  letter-spacing: .04em;
+  text-align: center;
+  line-height: 1.3;
+}
+.add-tile.ai-tile {
+  border-style: solid;
+  border-color: var(--edge);
+}
+.add-tile.ai-tile .add-tile-icon {
+  color: var(--ink);
+}
+.add-tile.ai-tile .add-tile-label {
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+/* ─── SHARED OVERLAY ─── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,.55);
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+}
+
+/* ─── SHARED GLASS CARD ─── */
+.glass-card {
+  background: #fff;
+  border: 1px solid var(--edge);
+  border-radius: 28px 28px 0 0;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+.glass-card.floating {
+  border-radius: 28px;
+  margin: 16px;
+  width: calc(100% - 32px);
+}
+
+/* ─── SHARED PANEL HEADER ─── */
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+.panel-close {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--edge);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* ─── SHARED PROMPT FIELD ─── */
+.prompt-wrap { padding: 14px 16px 10px; }
+.prompt-input {
+  width: 100%;
+  border: 1px solid var(--edge);
+  border-radius: 16px;
+  padding: 11px 14px;
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--ink);
+  background: #fff;
+  outline: none;
+}
+.prompt-input::placeholder { color: var(--ink-faint); }
+.prompt-input:focus {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(20,20,20,.09);
+}
+
+/* ─── SHARED GENERATE BUTTON ─── */
+.btn-gen {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 18px;
+  height: 38px;
+  border-radius: 99px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--ink);
+  color: #fff;
+  border: 1px solid var(--ink);
+  cursor: pointer;
+  transition: transform .1s, background .15s;
+}
+.btn-gen:active { transform: scale(.97); }
+.btn-gen:disabled { opacity: .4; cursor: not-allowed; }
+.btn-gen.generating { background: var(--ink-soft); border-color: var(--ink-soft); }
+
+.btn-sec {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 99px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--edge);
+  cursor: pointer;
+}
+.btn-confirm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 99px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--ink);
+  color: #fff;
+  border: 1px solid var(--ink);
+  cursor: pointer;
+  flex: 1;
+}
+.btn-confirm:disabled { opacity: .35; cursor: not-allowed; }
+
+/* ─── SHARED CANDIDATE GRID ─── */
+.cand-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 0 16px 4px;
+}
+.cand-tile {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  border: 1.5px solid var(--line);
+  transition: border-color .15s, transform .1s;
+}
+.cand-tile:hover { transform: scale(.98); }
+.cand-tile.selected { border: 2px solid var(--ink); }
+.cand-tile.selected .check-badge {
+  display: flex;
+}
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  0%   { background-position: -300% 0; }
+  100% { background-position: 300% 0; }
+}
+.skeleton {
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg,
+    rgba(20,20,20,.06) 25%,
+    rgba(20,20,20,.12) 50%,
+    rgba(20,20,20,.06) 75%);
+  background-size: 300% 100%;
+  animation: shimmer 1.6s infinite linear;
+}
+
+/* Circular progress spinner */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,.5);
+}
+.spinner-ring {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(20,20,20,.13);
+  border-top-color: var(--ink);
+  animation: spin .9s linear infinite;
+}
+
+/* Check badge */
+.check-badge {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 20px; height: 20px;
+  background: var(--ink);
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+/* CSS food placeholder images */
+.food-img {
+  width: 100%; height: 100%;
+  display: block;
+}
+.food-img.a { background: linear-gradient(135deg,#f5e6c8 0%,#e8c07e 40%,#b87e3f 100%); }
+.food-img.b { background: linear-gradient(145deg,#ddf0d8 0%,#93cc78 50%,#4a8f2a 100%); }
+.food-img.c { background: linear-gradient(135deg,#fde8e8 0%,#f5a5a5 50%,#c85e5e 100%); }
+.food-img.d { background: linear-gradient(145deg,#e8f0fd 0%,#9ab5f0 50%,#3d60cc 100%); }
+
+/* Food emoji layer */
+.food-emoji {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  line-height: 1;
+}
+
+/* ─── PANEL FOOTER ─── */
+.panel-footer {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px 16px;
+  border-top: 1px solid var(--line);
+}
+
+/* ─── HINT TEXT ─── */
+.hint-text {
+  text-align: center;
+  color: var(--ink-faint);
+  font-size: 12px;
+  padding: 20px 16px;
+  line-height: 1.7;
+}
+
+/* ─── SPARKLE ICON SVG ─── */
+.sparkle-icon { display: block; }
+
+/* ─── PROGRESS LABEL ─── */
+.progress-label {
+  text-align: center;
+  font-size: 11px;
+  color: var(--ink-soft);
+  padding: 6px 0 2px;
+  letter-spacing: .04em;
+}
+
+/* ─── STEPPER (시안 4) ─── */
+.stepper-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 14px 20px 10px;
+}
+.step-dot {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--edge);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  flex-shrink: 0;
+}
+.step-dot.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.step-dot.done {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.step-line {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+  margin: 0 4px;
+}
+.step-line.done { background: var(--ink); }
+
+/* ─── CHIP ROW (시안 5) ─── */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 16px 10px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  border-radius: 99px;
+  border: 1px solid var(--edge);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  background: #fff;
+  transition: background .12s, color .12s;
+}
+.chip:hover, .chip.active {
+  background: var(--ink);
+  color: #fff;
+}
+
+/* ─── CIRCULAR PROGRESS (시안 4) ─── */
+.circ-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0 18px;
+  gap: 12px;
+}
+.circ-svg { transform: rotate(-90deg); }
+@keyframes dash-anim {
+  0% { stroke-dashoffset: 180; }
+  100% { stroke-dashoffset: 40; }
+}
+.circ-track { fill: none; stroke: rgba(20,20,20,.13); stroke-width: 3.5; }
+.circ-prog  { fill: none; stroke: var(--ink); stroke-width: 3.5; stroke-linecap: round;
+              stroke-dasharray: 188; stroke-dashoffset: 60;
+              animation: dash-anim 1.8s ease-in-out infinite alternate; }
+.circ-label {
+  font-size: 12px;
+  color: var(--ink-soft);
+  letter-spacing: .04em;
+}
+
+/* ─── INLINE EXPAND (시안 2) ─── */
+.inline-expand {
+  background: #fff;
+  border: 1px solid var(--edge);
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 0;
+}
+.inline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.inline-title {
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.inline-prompt {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.inline-prompt-input {
+  width: 100%;
+  border: none;
+  font-size: 12px;
+  font-family: var(--font);
+  color: var(--ink);
+  outline: none;
+  background: transparent;
+}
+.inline-prompt-input::placeholder { color: var(--ink-faint); }
+.inline-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 10px 10px;
+}
+.inline-tile {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  border: 1.5px solid var(--line);
+  cursor: pointer;
+}
+.inline-tile.selected { border-color: var(--ink); }
+.inline-gen-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 12px;
+}
+.inline-confirm-btn {
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 99px;
+  padding: 7px 16px;
+  font-family: var(--font);
+  cursor: pointer;
+}
+.inline-cancel-btn {
+  font-size: 12px;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
+  font-family: var(--font);
+  cursor: pointer;
+}
+.inline-gen-btn {
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 99px;
+  padding: 7px 14px;
+  font-family: var(--font);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ─── CHAT (시안 5) ─── */
+.chat-scroll {
+  position: absolute;
+  top: 52px; bottom: 64px; left: 0; right: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.chat-scroll::-webkit-scrollbar { display: none; }
+
+.chat-bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.chat-bubble-wrap.user { align-items: flex-end; }
+.chat-bubble-wrap.ai { align-items: flex-start; }
+
+.chat-bubble {
+  max-width: 78%;
+  padding: 10px 13px;
+  border-radius: 18px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.chat-bubble.user {
+  background: var(--ink);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.chat-bubble.ai {
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-sender {
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: .04em;
+  padding: 0 4px;
+}
+
+.chat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  width: 100%;
+}
+.chat-tile {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid var(--line);
+  cursor: pointer;
+  position: relative;
+}
+.chat-tile.selected { border: 2px solid var(--ink); }
+
+.chat-input-bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 64px;
+  background: rgba(255,255,255,.92);
+  border-top: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+}
+.chat-input {
+  flex: 1;
+  border: 1px solid var(--edge);
+  border-radius: 99px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-family: var(--font);
+  outline: none;
+  background: #fff;
+}
+.chat-send-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.rise { animation: rise .3s cubic-bezier(.22,.68,0,1.2) both; }
+.fade { animation: fade-in .25s ease both; }
+
+/* ─── ERROR BLOCK ─── */
+.error-block {
+  margin: 10px 16px;
+  padding: 12px 14px;
+  background: rgba(20,20,20,.04);
+  border: 1px solid rgba(20,20,20,.16);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.error-msg {
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+.btn-retry {
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 600;
+  background: none;
+  border: 1px solid var(--edge);
+  border-radius: 99px;
+  padding: 5px 14px;
+  font-family: var(--font);
+  cursor: pointer;
+  color: var(--ink);
+}
+
+/* ─── SCROLLABLE PHONE ─── */
+.phone-scroll {
+  position: absolute;
+  top: 52px; bottom: 0; left: 0; right: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.phone-scroll::-webkit-scrollbar { display: none; }
+
+/* ─── STATUS TAB BAR (시안 toggle) ─── */
+.state-tabs {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.state-tab {
+  padding: 4px 12px;
+  border-radius: 99px;
+  border: 1px solid var(--edge);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #fff;
+  color: var(--ink-soft);
+  font-family: var(--font);
+  transition: all .15s;
+}
+.state-tab.active {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1>Im Chef — AI 이미지 생성 / 기능 02 디자인 시안</h1>
+  <p>5가지 레이아웃·인터랙션 변형 · 흑백 라인 미감 · 모바일 420px 프레임</p>
+</header>
+
+<!-- ═══════════════════════════════════════════════════
+     시안 1 — 풀스크린 블러 시트
+════════════════════════════════════════════════════ -->
+<div class="section-wrap">
+  <div class="section-label">
+    <strong>시안 1</strong>
+    <span>풀스크린 블러 시트 — 오버레이가 화면 전체를 덮고 바텀에서 올라오는 드라마틱한 쉬트</span>
+  </div>
+
+  <div class="state-tabs" id="tabs-1">
+    <button class="state-tab active" onclick="setState1('loading')">생성 중</button>
+    <button class="state-tab" onclick="setState1('partial')">Partial</button>
+    <button class="state-tab" onclick="setState1('done')">선택</button>
+    <button class="state-tab" onclick="setState1('error')">오류</button>
+  </div>
+
+  <div class="frame-row">
+    <div class="frame-unit">
+      <div class="phone" id="phone-1">
+        <!-- form behind -->
+        <div class="form-header">
+          <span class="form-header-title">새 레시피</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <div class="form-body blurred" id="form-body-1">
+          <div class="mock-field filled">된장찌개 레시피</div>
+          <div class="mock-field placeholder">레시피 설명 (선택)</div>
+          <div style="font-size:12px;color:var(--ink-faint);font-weight:500;letter-spacing:.06em;text-transform:uppercase;">사진 (1/3)</div>
+          <div class="photo-strip">
+            <div class="photo-thumb"><div class="photo-thumb-img food-1"></div></div>
+            <div class="add-tile">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9a9a9a" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span class="add-tile-label">사진 추가</span>
+            </div>
+            <div class="add-tile ai-tile">
+              <svg class="sparkle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.3L12 16.5l-6.2 4.5 2.4-7.3L2 9.2h7.6z"/>
+              </svg>
+              <span class="add-tile-label">AI 생성</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- overlay: fullscreen blur + sheet -->
+        <div class="overlay" id="overlay-1">
+          <div class="overlay-backdrop"></div>
+          <div class="glass-card rise" style="padding-bottom: env(safe-area-inset-bottom,0);" id="sheet-1">
+            <div class="panel-header">
+              <span class="panel-title">
+                <svg style="display:inline;vertical-align:middle;margin-right:5px;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.3L12 16.5l-6.2 4.5 2.4-7.3L2 9.2h7.6z"/></svg>
+                AI 이미지 생성
+              </span>
+              <div class="panel-close">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </div>
+            </div>
+            <div class="prompt-wrap" style="display:flex;gap:8px;align-items:flex-start;">
+              <input class="prompt-input" style="flex:1;" placeholder="어떤 이미지가 나왔으면 좋겠는지 입력" value="구수한 된장찌개, 뚝배기에 보글보글 끓는" readonly>
+              <button class="btn-gen generating" id="gen-btn-1">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.3L12 16.5l-6.2 4.5 2.4-7.3L2 9.2h7.6z"/></svg>
+                <span id="gen-btn-text-1">생성 중</span>
+              </button>
+            </div>
+
+            <!-- state content -->
+            <div id="state-content-1">
+              <!-- loading state (default) -->
+              <div class="cand-grid">
+                <div class="cand-tile"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring"></div></div></div>
+                <div class="cand-tile"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring"></div></div></div>
+                <div class="cand-tile"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring"></div></div></div>
+                <div class="cand-tile"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring"></div></div></div>
+              </div>
+              <p class="progress-label">이미지를 생성하는 중이에요...</p>
+            </div>
+
+            <div class="panel-footer">
+              <button class="btn-sec" style="flex:0 0 auto;">취소</button>
+              <button class="btn-confirm" disabled id="confirm-btn-1">이 사진 사용</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="frame-caption">시안 1</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     시안 2 — 사진 타일 인라인 확장
+════════════════════════════════════════════════════ -->
+<div class="section-wrap">
+  <div class="section-label">
+    <strong>시안 2</strong>
+    <span>인라인 확장 — AI 타일을 탭하면 사진 슬롯 자리에서 직접 패널이 펼쳐짐, 페이지 이탈 없음</span>
+  </div>
+
+  <div class="state-tabs" id="tabs-2">
+    <button class="state-tab active" onclick="setState2('loading')">생성 중</button>
+    <button class="state-tab" onclick="setState2('partial')">Partial</button>
+    <button class="state-tab" onclick="setState2('done')">선택</button>
+    <button class="state-tab" onclick="setState2('error')">오류</button>
+  </div>
+
+  <div class="frame-row">
+    <div class="frame-unit">
+      <div class="phone" id="phone-2">
+        <div class="form-header">
+          <span class="form-header-title">새 레시피</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <div class="phone-scroll" style="padding:16px;display:flex;flex-direction:column;gap:14px;background:#fff;">
+          <div class="mock-field filled">된장찌개 레시피</div>
+          <div class="mock-field placeholder">레시피 설명 (선택)</div>
+          <div style="font-size:12px;color:var(--ink-faint);font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:-4px;">사진 (1/3)</div>
+
+          <!-- existing thumb + inline expanded AI panel -->
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div class="photo-thumb"><div class="photo-thumb-img food-1"></div></div>
+            <div style="flex:1;min-width:0;">
+              <!-- INLINE EXPAND -->
+              <div class="inline-expand" id="inline-panel-2">
+                <div class="inline-header">
+                  <span class="inline-title">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.3L12 16.5l-6.2 4.5 2.4-7.3L2 9.2h7.6z"/></svg>
+                    AI 이미지 생성
+                  </span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9a9a9a" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </div>
+                <div class="inline-prompt">
+                  <input class="inline-prompt-input" placeholder="어떤 이미지가 나왔으면 좋겠는지 입력" value="구수한 된장찌개" readonly>
+                </div>
+                <!-- inline state content -->
+                <div id="inline-state-2">
+                  <div class="inline-grid">
+                    <div class="inline-tile"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring" style="width:22px;height:22px;"></div></div></div>
+                    <div class="inline-tile"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring" style="width:22px;height:22px;"></div></div></div>
+                    <div class="inline-tile"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring" style="width:22px;height:22px;"></div></div></div>
+                    <div class="inline-tile"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring" style="width:22px;height:22px;"></div></div></div>
+                  </div>
+                  <p style="font-size:10px;color:var(--ink-faint);text-align:center;padding:4px 0 8px;letter-spacing:.04em;">이미지를 생성하는 중이에요...</p>
+                </div>
+                <div class="inline-gen-row">
+                  <button class="inline-cancel-btn">취소</button>
+                  <button class="inline-confirm-btn" disabled id="inline-confirm-2" style="opacity:.35;">이 사진 사용</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mock-field placeholder" style="height:44px;"></div>
+          <div class="mock-field placeholder" style="height:44px;"></div>
+        </div>
+      </div>
+      <p class="frame-caption">시안 2</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     시안 3 — 바텀시트 드로어 (핸들 + 스크롤)
+════════════════════════════════════════════════════ -->
+<div class="section-wrap">
+  <div class="section-label">
+    <strong>시안 3</strong>
+    <span>바텀시트 드로어 — 손잡이 핸들로 올려 쓰는 스크롤형 드로어, 6개 후보 + 선택 확정</span>
+  </div>
+
+  <div class="state-tabs" id="tabs-3">
+    <button class="state-tab active" onclick="setState3('loading')">생성 중</button>
+    <button class="state-tab" onclick="setState3('partial')">Partial</button>
+    <button class="state-tab" onclick="setState3('done')">선택</button>
+    <button class="state-tab" onclick="setState3('error')">오류</button>
+  </div>
+
+  <div class="frame-row">
+    <div class="frame-unit">
+      <div class="phone" id="phone-3">
+        <!-- form bg -->
+        <div class="form-header">
+          <span class="form-header-title">새 레시피</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <div class="form-body blurred">
+          <div class="mock-field filled">참치 계란말이</div>
+          <div class="mock-field placeholder">재료 / 설명</div>
+          <div style="font-size:12px;color:var(--ink-faint);font-weight:500;letter-spacing:.06em;text-transform:uppercase;">사진 (0/3)</div>
+          <div class="photo-strip">
+            <div class="add-tile">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9a9a9a" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span class="add-tile-label">사진 추가</span>
+            </div>
+            <div class="add-tile ai-tile">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.3L12 16.5l-6.2 4.5 2.4-7.3L2 9.2h7.6z"/></svg>
+              <span class="add-tile-label">AI 생성</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- bottom drawer -->
+        <div style="position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;justify-content:flex-end;">
+          <div style="position:absolute;inset:0;background:rgba(255,255,255,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);"></div>
+          <!-- drawer -->
+          <div style="position:relative;z-index:1;background:#fff;border-radius:28px 28px 0 0;border:1px solid var(--edge);border-bottom:none;max-height:82%;">
+            <!-- drag handle -->
+            <div style="display:flex;justify-content:center;padding:10px 0 2px;">
+              <div style="width:36px;height:4px;border-radius:99px;background:rgba(20,20,20,.18);"></div>
+            </div>
+            <!-- header -->
+            <div class="panel-header" style="padding-top:8px;">
+              <span class="panel-title">
+                <svg style="display:inline;vertical-align:middle;margin-right:5px;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.3L12 16.5l-6.2 4.5 2.4-7.3L2 9.2h7.6z"/></svg>
+                AI 이미지 생성
+              </span>
+              <div class="panel-close">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </div>
+            </div>
+            <div class="prompt-wrap" style="display:flex;gap:8px;align-items:center;">
+              <input class="prompt-input" style="flex:1;font-size:12px;padding:9px 12px;" placeholder="어떤 이미지가 나왔으면 좋겠는지 입력" value="계란말이, 황금빛, 도시락 반찬" readonly>
+              <button class="btn-gen generating" style="height:36px;padding:0 12px;font-size:12px;">생성 중</button>
+            </div>
+            <!-- scrollable candidate area -->
+            <div style="overflow-y:auto;max-height:340px;scrollbar-width:none;" id="drawer-state-3">
+              <!-- loading 6 tiles -->
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0 12px 8px;">
+                <div class="cand-tile" style="border-radius:12px;"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring" style="width:22px;height:22px;"></div></div></div>
+                <div class="cand-tile" style="border-radius:12px;"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring" style="width:22px;height:22px;"></div></div></div>
+                <div class="cand-tile" style="border-radius:12px;"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring" style="width:22px;height:22px;"></div></div></div>
+                <div class="cand-tile" style="border-radius:12px;"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring" style="width:22px;height:22px;"></div></div></div>
+                <div class="cand-tile" style="border-radius:12px;"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring" style="width:22px;height:22px;"></div></div></div>
+                <div class="cand-tile" style="border-radius:12px;"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring" style="width:22px;height:22px;"></div></div></div>
+              </div>
+              <p class="progress-label" style="padding-bottom:8px;">6개 이미지를 생성하는 중...</p>
+            </div>
+            <div class="panel-footer">
+              <button class="btn-sec">취소</button>
+              <button class="btn-confirm" disabled id="confirm-btn-3">이 사진 사용</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="frame-caption">시안 3</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     시안 4 — 단계형 스테퍼 (프롬프트 → 생성 → 선택)
+════════════════════════════════════════════════════ -->
+<div class="section-wrap">
+  <div class="section-label">
+    <strong>시안 4</strong>
+    <span>단계형 스테퍼 — 3단계로 구분된 플로우, 원형 프로그레스가 화면 중앙을 점령하는 집중형</span>
+  </div>
+
+  <div class="state-tabs" id="tabs-4">
+    <button class="state-tab active" onclick="setState4('loading')">생성 중 (step 2)</button>
+    <button class="state-tab" onclick="setState4('done')">선택 (step 3)</button>
+    <button class="state-tab" onclick="setState4('error')">오류</button>
+  </div>
+
+  <div class="frame-row">
+    <div class="frame-unit">
+      <div class="phone" id="phone-4">
+        <div class="form-body blurred" style="position:absolute;inset:0;top:0;padding-top:52px;">
+          <div style="padding-top:8px;" class="mock-field filled">참치 계란말이</div>
+        </div>
+        <div style="position:absolute;inset:0;z-index:20;">
+          <div style="position:absolute;inset:0;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);"></div>
+          <!-- floating center card -->
+          <div style="position:absolute;left:16px;right:16px;top:50%;transform:translateY(-52%);background:#fff;border:1px solid var(--edge);border-radius:28px;z-index:1;" class="rise">
+            <div class="panel-header">
+              <span class="panel-title">AI 이미지 생성</span>
+              <div class="panel-close"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+            </div>
+            <!-- stepper -->
+            <div class="stepper-row">
+              <div class="step-dot done">✓</div>
+              <div class="step-line done"></div>
+              <div class="step-dot active" id="step2-dot">2</div>
+              <div class="step-line" id="step23-line"></div>
+              <div class="step-dot" id="step3-dot">3</div>
+            </div>
+            <div style="font-size:11px;color:var(--ink-faint);letter-spacing:.08em;text-transform:uppercase;text-align:center;padding:0 0 10px;display:flex;justify-content:space-around;">
+              <span style="flex:1;text-align:center;">프롬프트</span>
+              <span style="flex:1;text-align:center;" id="step2-label">생성 중</span>
+              <span style="flex:1;text-align:center;">이미지 선택</span>
+            </div>
+
+            <!-- state content -->
+            <div id="stepper-state-4">
+              <!-- loading -->
+              <div class="circ-progress-wrap">
+                <svg class="circ-svg" width="64" height="64" viewBox="0 0 64 64">
+                  <circle class="circ-track" cx="32" cy="32" r="28"/>
+                  <circle class="circ-prog" cx="32" cy="32" r="28"/>
+                </svg>
+                <span class="circ-label">이미지를 만드는 중이에요</span>
+              </div>
+              <p style="font-size:12px;color:var(--ink-soft);text-align:center;padding:0 20px 14px;line-height:1.6;">"계란말이, 황금빛, 도시락 반찬" 으로 4장 생성 중...</p>
+            </div>
+
+            <div class="panel-footer" style="padding-top:8px;">
+              <button class="btn-sec">이전</button>
+              <button class="btn-confirm" disabled id="confirm-btn-4">다음</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="frame-caption">시안 4</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     시안 5 — 대화형 채팅 + 프롬프트 칩 제안
+════════════════════════════════════════════════════ -->
+<div class="section-wrap">
+  <div class="section-label">
+    <strong>시안 5</strong>
+    <span>대화형 채팅 — 챗 버블로 AI와 대화하듯 이미지를 요청·선택, 칩 제안으로 빠른 입력 지원</span>
+  </div>
+
+  <div class="state-tabs" id="tabs-5">
+    <button class="state-tab active" onclick="setState5('loading')">생성 중</button>
+    <button class="state-tab" onclick="setState5('partial')">Partial</button>
+    <button class="state-tab" onclick="setState5('done')">선택 완료</button>
+    <button class="state-tab" onclick="setState5('error')">오류</button>
+  </div>
+
+  <div class="frame-row">
+    <div class="frame-unit">
+      <div class="phone" id="phone-5">
+        <!-- Chat UI header -->
+        <div class="form-header">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:26px;height:26px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.3L12 16.5l-6.2 4.5 2.4-7.3L2 9.2h7.6z"/></svg>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:700;line-height:1.1;">Im Chef AI</div>
+              <div style="font-size:10px;color:var(--ink-faint);">이미지 생성 도우미</div>
+            </div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9a9a9a" stroke-width="1.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+
+        <!-- chat scroll area -->
+        <div class="chat-scroll" id="chat-scroll-5">
+          <!-- AI greeting -->
+          <div class="chat-bubble-wrap ai">
+            <span class="chat-sender">Im Chef AI</span>
+            <div class="chat-bubble ai">
+              어떤 레시피 사진이 필요하세요? 어울리는 이미지를 만들어 드릴게요 ✨
+            </div>
+          </div>
+
+          <!-- chip suggestions -->
+          <div class="chip-row" style="padding:0 0 4px;">
+            <div class="chip active">🍲 뚝배기 요리</div>
+            <div class="chip">🥗 샐러드</div>
+            <div class="chip">🍱 도시락 반찬</div>
+            <div class="chip">🍜 국수류</div>
+          </div>
+
+          <!-- user message -->
+          <div class="chat-bubble-wrap user">
+            <span class="chat-sender">나</span>
+            <div class="chat-bubble user">뚝배기 된장찌개, 보글보글 끓는 장면, 따뜻한 느낌</div>
+          </div>
+
+          <!-- AI reply + state -->
+          <div class="chat-bubble-wrap ai" id="chat-state-5">
+            <span class="chat-sender">Im Chef AI</span>
+            <!-- loading default -->
+            <div class="chat-bubble ai" style="min-width:180px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                <div class="spinner-ring" style="width:18px;height:18px;flex-shrink:0;"></div>
+                <span style="font-size:12px;color:var(--ink-soft);">4장을 생성하는 중...</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;" id="chat-grid-loading-5">
+                <div style="aspect-ratio:1;border-radius:9px;overflow:hidden;"><div class="skeleton"></div></div>
+                <div style="aspect-ratio:1;border-radius:9px;overflow:hidden;"><div class="skeleton"></div></div>
+                <div style="aspect-ratio:1;border-radius:9px;overflow:hidden;"><div class="skeleton"></div></div>
+                <div style="aspect-ratio:1;border-radius:9px;overflow:hidden;"><div class="skeleton"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- chat input -->
+        <div class="chat-input-bar">
+          <input class="chat-input" placeholder="이미지 요청 또는 칩 선택...">
+          <button class="chat-send-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+      <p class="frame-caption">시안 5</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════
+   시안 1 상태 전환
+══════════════════════════ */
+function setState1(state) {
+  // tab highlight
+  document.querySelectorAll('#tabs-1 .state-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['loading','partial','done','error'][i] === state);
+  });
+
+  const content = document.getElementById('state-content-1');
+  const genBtn = document.getElementById('gen-btn-1');
+  const genText = document.getElementById('gen-btn-text-1');
+  const confirmBtn = document.getElementById('confirm-btn-1');
+
+  const foods = ['a','b','c','d'];
+  const emojis = ['🍲','🥘','🫕','🍜'];
+
+  function skeletonTile() {
+    return `<div class="cand-tile"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring"></div></div></div>`;
+  }
+  function foodTile(i, selected) {
+    const sel = selected ? 'selected' : '';
+    return `<div class="cand-tile ${sel}" onclick="selectTile1(this)">
+      <div class="food-img ${foods[i]}"></div>
+      <div class="food-emoji">${emojis[i]}</div>
+      ${selected ? `<div class="check-badge" style="display:flex;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>` : '<div class="check-badge"></div>'}
+    </div>`;
+  }
+
+  if (state === 'loading') {
+    genBtn.className = 'btn-gen generating';
+    genText.textContent = '생성 중';
+    genBtn.disabled = true;
+    confirmBtn.disabled = true;
+    content.innerHTML = `
+      <div class="cand-grid">${skeletonTile()}${skeletonTile()}${skeletonTile()}${skeletonTile()}</div>
+      <p class="progress-label">이미지를 생성하는 중이에요...</p>`;
+  } else if (state === 'partial') {
+    genBtn.className = 'btn-gen generating';
+    genText.textContent = '생성 중';
+    genBtn.disabled = true;
+    confirmBtn.disabled = false;
+    content.innerHTML = `
+      <div class="cand-grid">
+        ${foodTile(0,false)}${foodTile(1,false)}
+        ${skeletonTile()}${skeletonTile()}
+      </div>
+      <p class="progress-label">2/4 도착 — 먼저 선택하셔도 돼요</p>`;
+  } else if (state === 'done') {
+    genBtn.className = 'btn-gen';
+    genText.textContent = '재생성';
+    genBtn.disabled = false;
+    confirmBtn.disabled = false;
+    content.innerHTML = `
+      <div class="cand-grid">
+        ${foodTile(0,false)}${foodTile(1,true)}${foodTile(2,false)}${foodTile(3,false)}
+      </div>
+      <p class="progress-label">마음에 드는 이미지를 선택하세요</p>`;
+  } else if (state === 'error') {
+    genBtn.className = 'btn-gen';
+    genText.textContent = '재시도';
+    genBtn.disabled = false;
+    confirmBtn.disabled = true;
+    content.innerHTML = `
+      <div class="error-block">
+        <p class="error-msg">AI 이미지 생성을 처리할 수 없어요. 잠시 후 다시 시도하거나 직접 업로드해주세요.</p>
+        <button class="btn-retry">다시 시도</button>
+      </div>`;
+  }
+}
+
+function selectTile1(el) {
+  document.querySelectorAll('#phone-1 .cand-tile').forEach(t => {
+    t.classList.remove('selected');
+    const badge = t.querySelector('.check-badge');
+    if (badge) badge.style.display = 'none';
+  });
+  el.classList.add('selected');
+  const badge = el.querySelector('.check-badge');
+  if (badge) badge.style.display = 'flex';
+}
+
+/* ══════════════════════════
+   시안 2 상태 전환 (inline)
+══════════════════════════ */
+function setState2(state) {
+  document.querySelectorAll('#tabs-2 .state-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['loading','partial','done','error'][i] === state);
+  });
+
+  const content = document.getElementById('inline-state-2');
+  const confirmBtn = document.getElementById('inline-confirm-2');
+
+  function skel() {
+    return `<div class="inline-tile"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring" style="width:22px;height:22px;"></div></div></div>`;
+  }
+  function img(i, sel) {
+    const colors = ['a','b','c','d'];
+    const emojis = ['🍲','🥘','🫕','🍜'];
+    return `<div class="inline-tile ${sel?'selected':''}" onclick="selectInline2(this)">
+      <div class="food-img ${colors[i]}"></div>
+      <div class="food-emoji" style="font-size:20px;">${emojis[i]}</div>
+      ${sel ? `<div class="check-badge" style="display:flex;width:16px;height:16px;top:4px;right:4px;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>` : '<div class="check-badge" style="width:16px;height:16px;top:4px;right:4px;"></div>'}
+    </div>`;
+  }
+
+  if (state === 'loading') {
+    confirmBtn.disabled = true; confirmBtn.style.opacity = '.35';
+    content.innerHTML = `<div class="inline-grid">${skel()}${skel()}${skel()}${skel()}</div><p style="font-size:10px;color:var(--ink-faint);text-align:center;padding:4px 0 8px;letter-spacing:.04em;">이미지를 생성하는 중이에요...</p>`;
+  } else if (state === 'partial') {
+    confirmBtn.disabled = false; confirmBtn.style.opacity = '1';
+    content.innerHTML = `<div class="inline-grid">${img(0,false)}${img(1,false)}${skel()}${skel()}</div><p style="font-size:10px;color:var(--ink-faint);text-align:center;padding:4px 0 8px;letter-spacing:.04em;">2/4 도착 · 바로 선택 가능</p>`;
+  } else if (state === 'done') {
+    confirmBtn.disabled = false; confirmBtn.style.opacity = '1';
+    content.innerHTML = `<div class="inline-grid">${img(0,false)}${img(1,true)}${img(2,false)}${img(3,false)}</div><p style="font-size:10px;color:var(--ink-faint);text-align:center;padding:4px 0 8px;letter-spacing:.04em;">이미지를 선택하세요</p>`;
+  } else if (state === 'error') {
+    confirmBtn.disabled = true; confirmBtn.style.opacity = '.35';
+    content.innerHTML = `<div class="error-block" style="margin:8px;"><p class="error-msg" style="font-size:11px;">이미지 생성에 실패했어요. 다시 시도해주세요.</p><button class="btn-retry" style="font-size:11px;">다시 시도</button></div>`;
+  }
+}
+
+function selectInline2(el) {
+  document.querySelectorAll('#inline-panel-2 .inline-tile').forEach(t => {
+    t.classList.remove('selected');
+    const b = t.querySelector('.check-badge'); if (b) b.style.display='none';
+  });
+  el.classList.add('selected');
+  const b = el.querySelector('.check-badge'); if (b) b.style.display='flex';
+}
+
+/* ══════════════════════════
+   시안 3 상태 전환 (drawer)
+══════════════════════════ */
+function setState3(state) {
+  document.querySelectorAll('#tabs-3 .state-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['loading','partial','done','error'][i] === state);
+  });
+
+  const content = document.getElementById('drawer-state-3');
+  const confirmBtn = document.getElementById('confirm-btn-3');
+
+  function skel3() {
+    return `<div class="cand-tile" style="border-radius:12px;"><div class="skeleton"></div><div class="spinner-wrap"><div class="spinner-ring" style="width:22px;height:22px;"></div></div></div>`;
+  }
+  function img3(i, sel) {
+    const cols=['a','b','c','d','a','b'];
+    const emj=['🍲','🥘','🫕','🍜','🥗','🍱'];
+    return `<div class="cand-tile" style="border-radius:12px;" onclick="selectTile3(this)">
+      <div class="food-img ${cols[i]}"></div>
+      <div class="food-emoji" style="font-size:20px;">${emj[i]}</div>
+      ${sel?`<div class="check-badge" style="display:flex;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`:'<div class="check-badge"></div>'}
+    </div>`;
+  }
+
+  const grid3 = `style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0 12px 8px;"`;
+  if (state === 'loading') {
+    confirmBtn.disabled = true;
+    content.innerHTML = `<div ${grid3}>${[0,1,2,3,4,5].map(()=>skel3()).join('')}</div><p class="progress-label" style="padding-bottom:8px;">6개 이미지를 생성하는 중...</p>`;
+  } else if (state === 'partial') {
+    confirmBtn.disabled = false;
+    content.innerHTML = `<div ${grid3}>${img3(0,false)}${img3(1,false)}${img3(2,false)}${skel3()}${skel3()}${skel3()}</div><p class="progress-label" style="padding-bottom:8px;">3/6 도착 · 먼저 선택 가능</p>`;
+  } else if (state === 'done') {
+    confirmBtn.disabled = false;
+    content.innerHTML = `<div ${grid3}>${img3(0,false)}${img3(1,true)}${img3(2,false)}${img3(3,false)}${img3(4,false)}${img3(5,false)}</div><p class="progress-label" style="padding-bottom:8px;">마음에 드는 사진을 선택하세요</p>`;
+  } else if (state === 'error') {
+    confirmBtn.disabled = true;
+    content.innerHTML = `<div class="error-block"><p class="error-msg">이미지 생성을 처리할 수 없어요. 다시 시도하거나 직접 업로드해주세요.</p><button class="btn-retry">다시 시도</button></div>`;
+  }
+}
+
+function selectTile3(el) {
+  document.querySelectorAll('#phone-3 .cand-tile').forEach(t => {
+    t.classList.remove('selected');
+    const b = t.querySelector('.check-badge'); if(b) b.style.display='none';
+  });
+  el.classList.add('selected');
+  const b = el.querySelector('.check-badge'); if(b) b.style.display='flex';
+}
+
+/* ══════════════════════════
+   시안 4 상태 전환 (stepper)
+══════════════════════════ */
+function setState4(state) {
+  document.querySelectorAll('#tabs-4 .state-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['loading','done','error'][i] === state);
+  });
+
+  const content = document.getElementById('stepper-state-4');
+  const confirmBtn = document.getElementById('confirm-btn-4');
+  const step2Dot = document.getElementById('step2-dot');
+  const step3Dot = document.getElementById('step3-dot');
+  const step23Line = document.getElementById('step23-line');
+  const step2Label = document.getElementById('step2-label');
+
+  function img4(i, sel) {
+    const cols=['a','b','c','d'];
+    const emj=['🍲','🥘','🫕','🍜'];
+    return `<div class="cand-tile" onclick="selectTile4(this)">
+      <div class="food-img ${cols[i]}"></div>
+      <div class="food-emoji">${emj[i]}</div>
+      ${sel?`<div class="check-badge" style="display:flex;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`:'<div class="check-badge"></div>'}
+    </div>`;
+  }
+
+  if (state === 'loading') {
+    step2Dot.className = 'step-dot active'; step2Dot.textContent = '2';
+    step3Dot.className = 'step-dot'; step3Dot.textContent = '3';
+    step23Line.className = 'step-line';
+    step2Label.textContent = '생성 중';
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = '다음';
+    content.innerHTML = `
+      <div class="circ-progress-wrap">
+        <svg class="circ-svg" width="64" height="64" viewBox="0 0 64 64">
+          <circle class="circ-track" cx="32" cy="32" r="28"/>
+          <circle class="circ-prog" cx="32" cy="32" r="28"/>
+        </svg>
+        <span class="circ-label">이미지를 만드는 중이에요</span>
+      </div>
+      <p style="font-size:12px;color:var(--ink-soft);text-align:center;padding:0 20px 14px;line-height:1.6;">"계란말이, 황금빛, 도시락 반찬" 으로 4장 생성 중...</p>`;
+  } else if (state === 'done') {
+    step2Dot.className = 'step-dot done'; step2Dot.innerHTML = '✓';
+    step3Dot.className = 'step-dot active'; step3Dot.textContent = '3';
+    step23Line.className = 'step-line done';
+    step2Label.textContent = '완료';
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = '이 사진 사용';
+    content.innerHTML = `
+      <div class="cand-grid" style="padding:4px 16px;">
+        ${img4(0,false)}${img4(1,true)}${img4(2,false)}${img4(3,false)}
+      </div>
+      <p class="progress-label" style="padding-bottom:8px;">마음에 드는 이미지를 선택하세요</p>`;
+  } else if (state === 'error') {
+    step2Dot.className = 'step-dot active'; step2Dot.textContent = '!';
+    step3Dot.className = 'step-dot'; step3Dot.textContent = '3';
+    step23Line.className = 'step-line';
+    step2Label.textContent = '오류';
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = '다음';
+    content.innerHTML = `
+      <div class="error-block" style="margin:10px 16px 14px;">
+        <p class="error-msg">이미지 생성을 처리할 수 없어요. 잠시 후 다시 시도하거나 직접 업로드해주세요.</p>
+        <button class="btn-retry">다시 시도</button>
+      </div>`;
+  }
+}
+
+function selectTile4(el) {
+  document.querySelectorAll('#phone-4 .cand-tile').forEach(t => {
+    t.classList.remove('selected');
+    const b = t.querySelector('.check-badge'); if(b) b.style.display='none';
+  });
+  el.classList.add('selected');
+  const b = el.querySelector('.check-badge'); if(b) b.style.display='flex';
+}
+
+/* ══════════════════════════
+   시안 5 상태 전환 (chat)
+══════════════════════════ */
+function setState5(state) {
+  document.querySelectorAll('#tabs-5 .state-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['loading','partial','done','error'][i] === state);
+  });
+
+  const chatState = document.getElementById('chat-state-5');
+
+  function skel5() {
+    return `<div style="aspect-ratio:1;border-radius:9px;overflow:hidden;"><div class="skeleton"></div></div>`;
+  }
+  function img5(i, sel) {
+    const cols=['a','b','c','d'];
+    const emj=['🍲','🥘','🫕','🍜'];
+    return `<div class="chat-tile ${sel?'selected':''}" onclick="selectChat5(this)" style="aspect-ratio:1;">
+      <div class="food-img ${cols[i]}"></div>
+      <div class="food-emoji" style="font-size:20px;">${emj[i]}</div>
+      ${sel?`<div class="check-badge" style="display:flex;top:5px;right:5px;width:18px;height:18px;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`:'<div class="check-badge" style="top:5px;right:5px;width:18px;height:18px;"></div>'}
+    </div>`;
+  }
+
+  if (state === 'loading') {
+    chatState.innerHTML = `
+      <span class="chat-sender">Im Chef AI</span>
+      <div class="chat-bubble ai" style="min-width:180px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <div class="spinner-ring" style="width:18px;height:18px;flex-shrink:0;"></div>
+          <span style="font-size:12px;color:var(--ink-soft);">4장을 생성하는 중...</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">${skel5()}${skel5()}${skel5()}${skel5()}</div>
+      </div>`;
+  } else if (state === 'partial') {
+    chatState.innerHTML = `
+      <span class="chat-sender">Im Chef AI</span>
+      <div class="chat-bubble ai" style="min-width:180px;">
+        <p style="font-size:12px;color:var(--ink-soft);margin-bottom:7px;">2장 도착 · 바로 선택하셔도 돼요</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">${img5(0,false)}${img5(1,false)}${skel5()}${skel5()}</div>
+      </div>`;
+  } else if (state === 'done') {
+    chatState.innerHTML = `
+      <span class="chat-sender">Im Chef AI</span>
+      <div class="chat-bubble ai" style="min-width:200px;">
+        <p style="font-size:12px;color:var(--ink-soft);margin-bottom:7px;">4장 완성! 마음에 드는 걸 고르세요 😊</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">${img5(0,false)}${img5(1,true)}${img5(2,false)}${img5(3,false)}</div>
+        <button onclick="this.closest('.chat-bubble').querySelector('.selected') && alert('선택 완료!')" style="margin-top:9px;width:100%;background:var(--ink);color:#fff;border:none;border-radius:99px;padding:8px 0;font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer;">이 사진 사용</button>
+      </div>`;
+  } else if (state === 'error') {
+    chatState.innerHTML = `
+      <span class="chat-sender">Im Chef AI</span>
+      <div class="chat-bubble ai">
+        <p style="font-size:13px;color:var(--ink-soft);line-height:1.55;">이미지 생성에 실패했어요. 다른 묘사로 다시 시도해 볼까요?</p>
+        <button style="margin-top:8px;border:1px solid var(--edge);border-radius:99px;padding:5px 14px;font-size:11px;font-weight:600;background:#fff;font-family:var(--font);cursor:pointer;">다시 시도</button>
+      </div>`;
+  }
+}
+
+function selectChat5(el) {
+  const parent = el.closest('[style*="grid"]');
+  parent.querySelectorAll('.chat-tile').forEach(t => {
+    t.classList.remove('selected');
+    const b = t.querySelector('.check-badge'); if(b) b.style.display='none';
+  });
+  el.classList.add('selected');
+  const b = el.querySelector('.check-badge'); if(b) b.style.display='flex';
+}
+</script>
+</body>
+</html>

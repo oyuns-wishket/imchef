@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Im Chef — Editorial Minimal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0a0a0a;
+    --white: #fafafa;
+    --gray-100: #f4f4f4;
+    --gray-200: #e8e8e8;
+    --gray-300: #d0d0d0;
+    --gray-500: #8a8a8a;
+    --gray-700: #4a4a4a;
+    --font-display: 'Hanken Grotesk', sans-serif;
+    --font-body: 'Pretendard', sans-serif;
+  }
+
+  html, body {
+    background: #ebebeb;
+    min-height: 100vh;
+    font-family: var(--font-body);
+  }
+
+  /* ── STAGE ── */
+  .stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 56px 32px 80px;
+    gap: 0;
+  }
+
+  .stage-title {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 48px;
+  }
+
+  .phones-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .phone-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .phone-caption {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #999;
+  }
+
+  /* ── PHONE FRAME ── */
+  .phone {
+    width: 390px;
+    height: 860px;
+    background: var(--white);
+    border-radius: 42px;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.08),
+      0 24px 80px rgba(0,0,0,0.18),
+      0 8px 24px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── SHARED HEADER ── */
+  .phone-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250,250,250,0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 20px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .header-ladle {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+
+  .header-wordmark {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--black);
+    line-height: 1;
+  }
+
+  .header-wordmark span {
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+
+  .header-action {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  /* ── SCROLL AREA ── */
+  .phone-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+    scrollbar-width: none;
+  }
+  .phone-scroll::-webkit-scrollbar { display: none; }
+
+  /* ── GLASS BOTTOM BAR ── */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 76px;
+    background: rgba(250, 250, 250, 0.65);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-top: 1px solid rgba(255,255,255,0.7);
+    box-shadow: 0 -1px 0 rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 8px 12px;
+    z-index: 200;
+  }
+
+  .bar-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .bar-btn svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--gray-700);
+    stroke-width: 1.4;
+  }
+
+  .bar-btn.active svg {
+    stroke: var(--black);
+  }
+
+  .bar-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--black);
+    position: absolute;
+    bottom: 0;
+  }
+
+  /* ─────────────────────────────────────── */
+  /* FRAME A — FEED */
+  /* ─────────────────────────────────────── */
+
+  .feed-index-row {
+    padding: 18px 20px 10px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--gray-200);
+  }
+
+  .feed-index-label {
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+  }
+
+  .feed-index-count {
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    color: var(--gray-500);
+  }
+
+  /* FEED POST */
+  .post {
+    border-bottom: 1px solid var(--gray-200);
+  }
+
+  .post-img-wrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    position: relative;
+    background: var(--gray-100);
+  }
+
+  .post-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* empty photo state */
+  .post-img-empty {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: var(--gray-100);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .post-img-empty svg {
+    width: 36px;
+    height: 36px;
+    stroke: var(--gray-300);
+    stroke-width: 1.2;
+  }
+
+  .post-img-empty-label {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--gray-500);
+    letter-spacing: 0.05em;
+  }
+
+  .post-body {
+    padding: 16px 20px 14px;
+  }
+
+  .post-meta-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .post-index {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--gray-300);
+    text-transform: uppercase;
+  }
+
+  .post-hairline {
+    flex: 1;
+    height: 1px;
+    background: var(--gray-200);
+  }
+
+  .post-chef {
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+  }
+
+  .post-title {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--black);
+    margin-bottom: 14px;
+  }
+
+  .post-title-empty {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--gray-300);
+  }
+
+  .post-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding-top: 10px;
+    border-top: 1px solid var(--gray-200);
+  }
+
+  .post-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+  }
+
+  .post-action-btn svg {
+    width: 17px;
+    height: 17px;
+    stroke: var(--gray-700);
+    stroke-width: 1.4;
+    fill: none;
+  }
+
+  .post-action-count {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--gray-500);
+    letter-spacing: 0.02em;
+  }
+
+  /* ─────────────────────────────────────── */
+  /* FRAME B — RECIPE DETAIL */
+  /* ─────────────────────────────────────── */
+
+  .detail-hero {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    position: relative;
+    background: var(--gray-100);
+    flex-shrink: 0;
+  }
+
+  .detail-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .detail-body {
+    padding: 24px 20px 0;
+  }
+
+  .detail-category {
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .detail-category::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gray-200);
+  }
+
+  .detail-title {
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 900;
+    line-height: 1.0;
+    letter-spacing: -0.04em;
+    color: var(--black);
+    margin-bottom: 6px;
+  }
+
+  .detail-chef-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .detail-chef-label {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+  }
+
+  .detail-chef-name {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-700);
+  }
+
+  /* META ROW */
+  .detail-meta {
+    display: flex;
+    align-items: stretch;
+    border-top: 1px solid var(--gray-200);
+    border-bottom: 1px solid var(--gray-200);
+    margin-bottom: 28px;
+  }
+
+  .detail-meta-item {
+    flex: 1;
+    padding: 14px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .detail-meta-item:not(:last-child) {
+    border-right: 1px solid var(--gray-200);
+  }
+
+  .detail-meta-label {
+    font-family: var(--font-display);
+    font-size: 8px;
+    font-weight: 500;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+  }
+
+  .detail-meta-value {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--black);
+    letter-spacing: -0.01em;
+  }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .section-label {
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--black);
+    flex-shrink: 0;
+  }
+
+  .section-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--gray-200);
+  }
+
+  /* INGREDIENTS */
+  .ingredients-list {
+    list-style: none;
+    margin-bottom: 28px;
+  }
+
+  .ingredient-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .ingredient-name {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--black);
+  }
+
+  .ingredient-amount {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--gray-500);
+    letter-spacing: 0.04em;
+  }
+
+  /* STEPS */
+  .steps-list {
+    list-style: none;
+    margin-bottom: 28px;
+  }
+
+  .step-item {
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--gray-100);
+    align-items: flex-start;
+  }
+
+  .step-num {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--gray-200);
+    line-height: 1;
+    letter-spacing: -0.05em;
+    flex-shrink: 0;
+    width: 36px;
+    text-align: right;
+  }
+
+  .step-text {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.65;
+    color: var(--gray-700);
+    padding-top: 4px;
+  }
+
+  /* REFERENCE LINK */
+  .detail-ref {
+    padding: 14px 0 8px;
+    margin-bottom: 12px;
+  }
+
+  .detail-ref-label {
+    font-family: var(--font-display);
+    font-size: 8px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 6px;
+  }
+
+  .detail-ref-url {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--gray-500);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    word-break: break-all;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <p class="stage-title">Im Chef &mdash; Editorial Minimal &mdash; UI Concept 04</p>
+
+  <div class="phones-row">
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- PHONE A — FEED                         -->
+    <!-- ══════════════════════════════════════ -->
+    <div class="phone-col">
+      <div class="phone" id="phone-feed">
+
+        <!-- HEADER -->
+        <header class="phone-header">
+          <div class="header-brand">
+            <!-- 국자 ladle icon -->
+            <svg class="header-ladle" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="8" cy="9" r="5.5" stroke="#0a0a0a" stroke-width="1.4"/>
+              <path d="M12.5 12.5 L22 22" stroke="#0a0a0a" stroke-width="1.4" stroke-linecap="round"/>
+              <path d="M19 19 L21.5 21.5" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <span class="header-wordmark">Im<span> chef</span></span>
+          </div>
+          <!-- pencil / compose icon -->
+          <div class="header-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="1.4" width="20" height="20">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+          </div>
+        </header>
+
+        <!-- FEED SCROLL -->
+        <div class="phone-scroll">
+
+          <div class="feed-index-row">
+            <span class="feed-index-label">Today's Recipes</span>
+            <span class="feed-index-count">324 posts</span>
+          </div>
+
+          <!-- POST 1 -->
+          <article class="post">
+            <div class="post-img-wrap">
+              <img src="https://picsum.photos/seed/min4a/780/780" alt="마라샹궈">
+            </div>
+            <div class="post-body">
+              <div class="post-meta-top">
+                <span class="post-index">01</span>
+                <div class="post-hairline"></div>
+                <span class="post-chef">@마라중독자</span>
+              </div>
+              <h2 class="post-title">마라샹궈,<br>집에서도 가능</h2>
+              <div class="post-actions">
+                <div class="post-action-btn">
+                  <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                  <span class="post-action-count">847</span>
+                </div>
+                <div class="post-action-btn">
+                  <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  <span class="post-action-count">공유</span>
+                </div>
+                <div class="post-action-btn">
+                  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                  <span class="post-action-count">댓글 32</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- POST 2 — EMPTY STATE -->
+          <article class="post">
+            <div class="post-img-empty">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="3" width="18" height="18" rx="3" stroke-width="1.2" stroke-linejoin="round"/>
+                <circle cx="8.5" cy="8.5" r="1.5" stroke-width="1.2"/>
+                <path d="M21 15l-5-5L5 21" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="post-img-empty-label">음식 사진이 없어요!</span>
+            </div>
+            <div class="post-body">
+              <div class="post-meta-top">
+                <span class="post-index">02</span>
+                <div class="post-hairline"></div>
+                <span class="post-chef">@된장찌개장인</span>
+              </div>
+              <h2 class="post-title post-title-empty">된장찌개<br>정석 레시피</h2>
+              <div class="post-actions">
+                <div class="post-action-btn">
+                  <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                  <span class="post-action-count">213</span>
+                </div>
+                <div class="post-action-btn">
+                  <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  <span class="post-action-count">공유</span>
+                </div>
+                <div class="post-action-btn">
+                  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                  <span class="post-action-count">댓글 8</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- POST 3 — partial / clipped -->
+          <article class="post">
+            <div class="post-img-wrap">
+              <img src="https://picsum.photos/seed/min4c/780/780" alt="파스타">
+            </div>
+            <div class="post-body">
+              <div class="post-meta-top">
+                <span class="post-index">03</span>
+                <div class="post-hairline"></div>
+                <span class="post-chef">@홈카페파스타</span>
+              </div>
+              <h2 class="post-title">명란 크림 파스타,<br>15분 완성</h2>
+              <div class="post-actions">
+                <div class="post-action-btn">
+                  <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                  <span class="post-action-count">1.2k</span>
+                </div>
+                <div class="post-action-btn">
+                  <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  <span class="post-action-count">공유</span>
+                </div>
+                <div class="post-action-btn">
+                  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                  <span class="post-action-count">댓글 56</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+        </div><!-- /scroll -->
+
+        <!-- GLASS BOTTOM BAR -->
+        <nav class="bottom-bar">
+          <!-- 돋보기 search -->
+          <div class="bar-btn">
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="11" cy="11" r="7"/>
+              <line x1="16.5" y1="16.5" x2="22" y2="22"/>
+            </svg>
+          </div>
+          <!-- 하트 likes -->
+          <div class="bar-btn">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+          </div>
+          <!-- 종이비행기 activity -->
+          <div class="bar-btn active">
+            <svg viewBox="0 0 24 24" fill="none">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+            <div class="bar-dot"></div>
+          </div>
+          <!-- 사람 profile -->
+          <div class="bar-btn">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+        </nav>
+
+      </div><!-- /phone-feed -->
+      <p class="phone-caption">피드</p>
+    </div><!-- /phone-col A -->
+
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- PHONE B — RECIPE DETAIL               -->
+    <!-- ══════════════════════════════════════ -->
+    <div class="phone-col">
+      <div class="phone" id="phone-detail">
+
+        <!-- HEADER -->
+        <header class="phone-header">
+          <div class="header-brand">
+            <svg class="header-ladle" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="8" cy="9" r="5.5" stroke="#0a0a0a" stroke-width="1.4"/>
+              <path d="M12.5 12.5 L22 22" stroke="#0a0a0a" stroke-width="1.4" stroke-linecap="round"/>
+              <path d="M19 19 L21.5 21.5" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <span class="header-wordmark">Im<span> chef</span></span>
+          </div>
+          <div class="header-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="1.4" width="20" height="20">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </div>
+        </header>
+
+        <!-- DETAIL SCROLL -->
+        <div class="phone-scroll">
+
+          <!-- HERO IMAGE -->
+          <div class="detail-hero">
+            <img src="https://picsum.photos/seed/min4d/780/585" alt="마라샹궈">
+          </div>
+
+          <div class="detail-body">
+
+            <!-- CATEGORY -->
+            <p class="detail-category">중식 · 메인 요리</p>
+
+            <!-- TITLE -->
+            <h1 class="detail-title">마라샹궈</h1>
+
+            <!-- CHEF ROW -->
+            <div class="detail-chef-row">
+              <span class="detail-chef-label">By</span>
+              <span class="detail-chef-name">@마라중독자</span>
+            </div>
+
+            <!-- META ROW -->
+            <div class="detail-meta">
+              <div class="detail-meta-item">
+                <span class="detail-meta-label">인분</span>
+                <span class="detail-meta-value">2</span>
+              </div>
+              <div class="detail-meta-item">
+                <span class="detail-meta-label">조리시간</span>
+                <span class="detail-meta-value">35분</span>
+              </div>
+              <div class="detail-meta-item">
+                <span class="detail-meta-label">난이도</span>
+                <span class="detail-meta-value">보통</span>
+              </div>
+            </div>
+
+            <!-- INGREDIENTS -->
+            <div class="section-header">
+              <span class="section-label">재료</span>
+              <div class="section-rule"></div>
+            </div>
+            <ul class="ingredients-list">
+              <li class="ingredient-item">
+                <span class="ingredient-name">돼지 앞다리살</span>
+                <span class="ingredient-amount">200 g</span>
+              </li>
+              <li class="ingredient-item">
+                <span class="ingredient-name">새우</span>
+                <span class="ingredient-amount">8마리</span>
+              </li>
+              <li class="ingredient-item">
+                <span class="ingredient-name">두부</span>
+                <span class="ingredient-amount">½모</span>
+              </li>
+              <li class="ingredient-item">
+                <span class="ingredient-name">청경채</span>
+                <span class="ingredient-amount">2포기</span>
+              </li>
+              <li class="ingredient-item">
+                <span class="ingredient-name">마라 소스</span>
+                <span class="ingredient-amount">3 큰술</span>
+              </li>
+              <li class="ingredient-item">
+                <span class="ingredient-name">두반장</span>
+                <span class="ingredient-amount">1 큰술</span>
+              </li>
+              <li class="ingredient-item">
+                <span class="ingredient-name">화자오 (마라 향신료)</span>
+                <span class="ingredient-amount">1 작은술</span>
+              </li>
+              <li class="ingredient-item">
+                <span class="ingredient-name">마늘 · 생강</span>
+                <span class="ingredient-amount">각 5쪽</span>
+              </li>
+              <li class="ingredient-item">
+                <span class="ingredient-name">식용유</span>
+                <span class="ingredient-amount">3 큰술</span>
+              </li>
+            </ul>
+
+            <!-- STEPS -->
+            <div class="section-header">
+              <span class="section-label">조리 순서</span>
+              <div class="section-rule"></div>
+            </div>
+            <ol class="steps-list">
+              <li class="step-item">
+                <span class="step-num">01</span>
+                <p class="step-text">돼지고기는 한 입 크기로 썰어 소금, 후추, 전분을 살짝 버무린 뒤 10분간 재워둔다.</p>
+              </li>
+              <li class="step-item">
+                <span class="step-num">02</span>
+                <p class="step-text">두부는 큼직하게 깍둑썰기, 청경채는 반 갈라 씻어 물기를 뺀다.</p>
+              </li>
+              <li class="step-item">
+                <span class="step-num">03</span>
+                <p class="step-text">달군 웍에 기름을 두르고 마늘·생강·화자오를 넣어 향이 날 때까지 강불로 볶는다.</p>
+              </li>
+              <li class="step-item">
+                <span class="step-num">04</span>
+                <p class="step-text">돼지고기를 넣고 표면이 익을 때까지 센 불에 볶다가, 새우를 넣어 함께 볶는다.</p>
+              </li>
+              <li class="step-item">
+                <span class="step-num">05</span>
+                <p class="step-text">마라 소스와 두반장을 넣고 1분간 볶은 뒤, 두부와 청경채를 넣어 잘 섞는다.</p>
+              </li>
+              <li class="step-item">
+                <span class="step-num">06</span>
+                <p class="step-text">물 50ml를 넣고 약불로 줄여 2분간 뭉근히 졸인다. 기호에 따라 참기름을 몇 방울 뿌려 마무리한다.</p>
+              </li>
+            </ol>
+
+            <!-- REFERENCE LINK -->
+            <div class="section-header">
+              <span class="section-label">참고 링크</span>
+              <div class="section-rule"></div>
+            </div>
+            <div class="detail-ref">
+              <p class="detail-ref-label">원본 출처</p>
+              <a class="detail-ref-url" href="#">youtube.com/watch?v=mara-jjanguo-recipe</a>
+            </div>
+
+          </div><!-- /detail-body -->
+        </div><!-- /scroll -->
+
+        <!-- GLASS BOTTOM BAR -->
+        <nav class="bottom-bar">
+          <div class="bar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#4a4a4a" stroke-width="1.4">
+              <circle cx="11" cy="11" r="7"/>
+              <line x1="16.5" y1="16.5" x2="22" y2="22"/>
+            </svg>
+          </div>
+          <div class="bar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#4a4a4a" stroke-width="1.4">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+          </div>
+          <div class="bar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#4a4a4a" stroke-width="1.4">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </div>
+          <div class="bar-btn active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="1.4">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <div class="bar-dot"></div>
+          </div>
+        </nav>
+
+      </div><!-- /phone-detail -->
+      <p class="phone-caption">레시피 상세</p>
+    </div><!-- /phone-col B -->
+
+  </div><!-- /phones-row -->
+</div><!-- /stage -->
+
+</body>
+</html>

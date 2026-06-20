@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import RecipeForm from "@/components/RecipeForm";
+import Spinner from "@/components/ui/Spinner";
 
 interface RecipeData {
   title: string;
@@ -66,8 +67,13 @@ export default function EditRecipePage() {
 
   if (loading || !recipe) {
     return (
-      <main className="max-w-[520px] mx-auto px-4 py-10">
-        <div className="text-ink-faint text-sm">불러오는 중...</div>
+      <main
+        className="max-w-[520px] mx-auto px-4 flex items-center justify-center min-h-[60vh]"
+        role="status"
+        aria-busy="true"
+        aria-label="불러오는 중"
+      >
+        <Spinner size="lg" label="불러오는 중" />
       </main>
     );
   }

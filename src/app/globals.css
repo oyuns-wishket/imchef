@@ -51,6 +51,347 @@
   40% { transform: scale(1.28); }
   100% { transform: scale(1); }
 }
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Spinner 회전 — circle 단독 회전은 transform-origin 해석이 브라우저마다 달라
+   멈춰 보이므로 svg 전체를 회전시킨다 */
+.spinner-svg {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: spin 0.8s linear infinite;
+  will-change: transform;
+}
+
+/* prefers-reduced-motion: 회전·펄스 제거, 정적 표시 폴백 */
+@media (prefers-reduced-motion: reduce) {
+  .spinner-svg {
+    animation: none;
+  }
+  .skeleton-item {
+    animation: none;
+  }
+  .v2-scan,
+  .v2-bar-fill,
+  .v2-url-dot,
+  .url-import-btn-spinner {
+    animation: none !important;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   UrlRecipeImport — 시안 2 스캔라인 Sweep
+──────────────────────────────────────────────────────────────── */
+
+/* 루트 컨테이너 */
+.url-import-root {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 24px;
+}
+
+/* URL 입력 박스 — 시안: border-radius 20px, padding 16px, gap 10px */
+.url-import-box {
+  background: #ffffff;
+  border: 1px solid var(--color-edge);
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.url-import-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+/* URL 인풋 — 시안: background #fafafa, color ink-soft, font-size 13px */
+.url-import-input {
+  width: 100%;
+  border: 1px solid var(--color-edge);
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  background: #fafafa;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.url-import-input::placeholder {
+  color: var(--color-ink-faint);
+}
+.url-import-input:focus {
+  border-color: #141414;
+  box-shadow: 0 0 0 3px rgba(20, 20, 20, 0.08);
+}
+
+/* AI 자동생성 버튼 공통 — 시안: border-radius 12px (not pill) */
+.url-import-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 13px 16px;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+/* 기본(idle) — 흑배경 흰글씨 */
+.url-import-btn--primary {
+  background: var(--color-ink);
+  border: 1px solid var(--color-ink);
+  color: #ffffff;
+}
+.url-import-btn--primary:hover:not(:disabled) {
+  background: #000000;
+}
+.url-import-btn--primary:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+/* 완료 후 — #383838 배경 (시안과 동일) */
+.url-import-btn--done {
+  background: #383838;
+  border: 1px solid #383838;
+  color: #ffffff;
+}
+.url-import-btn--done:hover {
+  background: #2a2a2a;
+}
+
+/* ── v2 스캔라인 로더 ── */
+@keyframes v2-sweep {
+  0%   { background-position: -40% 0; }
+  100% { background-position: 140% 0; }
+}
+
+@keyframes v2-bar {
+  0%   { width: 20%; }
+  100% { width: 82%; }
+}
+
+@keyframes v2-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+/* 로더 래퍼 — 시안: url-box 영역을 완전히 대체 */
+.v2-loader {
+  background: #ffffff;
+  border: 1px solid var(--color-edge);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  animation: rise 0.25s ease both;
+}
+
+/* 썸네일 영역 — 시안: height 140px */
+.v2-thumb {
+  width: 100%;
+  height: 140px;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.v2-thumb-label {
+  font-size: 10px;
+  color: var(--color-ink-faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+/* 격자 오버레이 */
+.v2-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(20,20,20,0.05) 0, rgba(20,20,20,0.05) 1px, transparent 1px, transparent 20px),
+    repeating-linear-gradient(90deg, rgba(20,20,20,0.05) 0, rgba(20,20,20,0.05) 1px, transparent 1px, transparent 20px);
+}
+
+/* 스캔 빔 (좌→우) */
+.v2-scan {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(20,20,20,0.04) 30%,
+    rgba(20,20,20,0.18) 49%,
+    rgba(20,20,20,0.18) 51%,
+    rgba(20,20,20,0.04) 70%,
+    transparent 100%
+  );
+  background-size: 40% 100%;
+  background-repeat: no-repeat;
+  animation: v2-sweep 1.8s ease-in-out infinite;
+}
+
+/* 정보 영역 — 시안: padding 14px 16px 18px */
+.v2-info {
+  padding: 14px 16px 18px;
+}
+
+/* URL 칩 */
+.v2-url-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--color-line);
+  border-radius: 20px;
+  font-size: 10px;
+  color: var(--color-ink-faint);
+  margin-bottom: 10px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.v2-url-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-ink);
+  flex-shrink: 0;
+  animation: v2-blink 1.2s ease-in-out infinite;
+}
+
+.v2-url-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+/* 단계 상태 텍스트 */
+.v2-status {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink);
+  margin-bottom: 3px;
+}
+
+.v2-sub {
+  font-size: 11px;
+  color: var(--color-ink-faint);
+}
+
+/* 하단 2px 프로그레스 바 */
+.v2-bar-track {
+  height: 2px;
+  background: var(--color-line);
+  border-radius: 2px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.v2-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-ink-faint), var(--color-ink));
+  border-radius: 2px;
+  animation: v2-bar 2.4s ease-in-out infinite alternate;
+}
+
+/* ── 완료 배너 — 시안: url-box 바로 아래, margin-bottom 16px */
+.url-import-done-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  margin-top: 10px;
+  margin-bottom: 16px;
+  font-size: 11px;
+  color: var(--color-ink-soft);
+  background: #fafafa;
+  animation: slide-down 0.2s ease both;
+}
+
+/* ── 부분 추출 안내 ── */
+.url-import-partial-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--color-ink-soft);
+  background: #fafafa;
+  animation: slide-down 0.2s ease both;
+}
+
+.url-import-partial-head {
+  font-weight: 500;
+  color: var(--color-ink);
+  margin-bottom: 2px;
+}
+
+.url-import-partial-sub {
+  color: var(--color-ink-faint);
+}
+
+/* ── 에러 안내 ── */
+.url-import-error-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--color-ink-soft);
+  background: #fafafa;
+  animation: slide-down 0.2s ease both;
+}
+
+.url-import-error-msg {
+  flex: 1;
+  color: var(--color-ink-soft);
+}
+
+/* ── 재시도 버튼 (에러 상태에서만 사용) ── */
+.url-import-retry-btn {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-ink);
+  background: none;
+  border: 1px solid var(--color-edge);
+  border-radius: 8px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background 0.12s;
+  white-space: nowrap;
+  margin-left: auto;
+}
+.url-import-retry-btn:hover {
+  background: rgba(20,20,20,0.05);
+}
 
 /* Outlined white surface — defined by a thin black line, not a fill */
 @utility glass {

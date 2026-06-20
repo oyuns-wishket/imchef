@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { Ladle, Pencil, Person } from "@/components/icons";
+import { Logo, Pencil, Person } from "@/components/icons";
 
 export default function Header() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function Header() {
     <header className="sticky top-0 z-40 glass-bar">
       <div className="max-w-[520px] mx-auto px-4 h-[60px] flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 text-ink" aria-label="홈">
-          <Ladle className="w-[26px] h-[26px]" strokeWidth={1.5} />
+          <Logo className="w-[26px] h-[26px]" strokeWidth={1.5} aria-hidden />
           <span className="text-[18px] font-semibold tracking-tight">
             Im<span style={{ color: "var(--color-accent)" }}>chef</span>
           </span>

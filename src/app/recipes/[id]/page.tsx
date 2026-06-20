@@ -15,6 +15,7 @@ import {
   Comment as CommentIcon,
   LinkIcon,
 } from "@/components/icons";
+import Skeleton from "@/components/ui/Skeleton";
 
 interface Recipe {
   id: string;
@@ -117,8 +118,17 @@ export default function RecipeDetailPage() {
 
   if (status === "loading") {
     return (
-      <main className="max-w-[520px] mx-auto px-3 pt-3">
-        <div className="aspect-[4/3] rounded-3xl glass animate-pulse" />
+      <main className="max-w-[520px] mx-auto px-3 pt-3" role="status" aria-busy="true" aria-label="불러오는 중">
+        <Skeleton variant="block" aspectRatio="4 / 3" className="rounded-3xl" />
+        <div className="mt-4 space-y-2.5 px-0.5">
+          <Skeleton variant="line" width="70%" height={22} />
+          <Skeleton variant="line" width="40%" height={13} />
+        </div>
+        <div className="mt-5 space-y-2 px-0.5">
+          <Skeleton variant="line" width="100%" height={13} />
+          <Skeleton variant="line" width="85%" height={13} />
+          <Skeleton variant="line" width="60%" height={13} />
+        </div>
       </main>
     );
   }
