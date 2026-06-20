@@ -6,6 +6,7 @@ import Link from "next/link";
 import FeedPost from "@/components/FeedPost";
 import { useAuth } from "@/contexts/AuthContext";
 import { Search } from "@/components/icons";
+import Skeleton from "@/components/ui/Skeleton";
 
 interface Recipe {
   id: string;
@@ -91,8 +92,12 @@ export default function MyRecipesPage() {
       )}
 
       {authLoading || loading ? (
-        <div className="px-3">
-          <div className="aspect-square rounded-[20px] glass animate-pulse" />
+        <div role="status" aria-busy="true" aria-label="불러오는 중" className="px-3 space-y-5">
+          <Skeleton variant="block" aspectRatio="1 / 1" className="rounded-[20px]" />
+          <div className="space-y-2">
+            <Skeleton variant="line" width="60%" height={14} />
+            <Skeleton variant="line" width="40%" height={13} />
+          </div>
         </div>
       ) : error ? (
         <EmptyState emoji="🥕" title="불러오지 못했어요" desc="잠시 후 다시 시도해주세요." />

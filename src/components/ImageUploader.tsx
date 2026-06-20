@@ -2,6 +2,9 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
+import Spinner from "@/components/ui/Spinner";
+import AiImageGenerator from "@/components/AiImageGenerator";
+import { Sparkle } from "@/components/icons";
 
 interface Props {
   images: string[];
@@ -11,6 +14,7 @@ interface Props {
 
 export default function ImageUploader({ images, onChange, maxImages = 3 }: Props) {
   const [uploading, setUploading] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -34,6 +38,13 @@ export default function ImageUploader({ images, onChange, maxImages = 3 }: Props
     onChange(images.filter((_, i) => i !== index));
   }
 
+  function handleAiSelect(url: string) {
+    if (images.length >= maxImages) return;
+    onChange([...images, url]);
+  }
+
+  const canAdd = images.length < maxImages;
+
   return (
     <div className="space-y-3">
       <label className="text-sm font-medium text-ink">
@@ -55,14 +66,16 @@ export default function ImageUploader({ images, onChange, maxImages = 3 }: Props
             </button>
           </div>
         ))}
-        {images.length < maxImages && (
+
+        {/* 수동 업로드 타일 */}
+        {canAdd && (
           <label
             className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border-2 border-dashed border-line
                        flex flex-col items-center justify-center cursor-pointer
                        hover:border-[--color-accent] transition-colors text-ink-faint"
           >
             {uploading ? (
-              <span className="text-xs">업로드중...</span>
+              <Spinner size="md" label="업로드 중" />
             ) : (
               <>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -81,7 +94,35 @@ export default function ImageUploader({ images, onChange, maxImages = 3 }: Props
             />
           </label>
         )}
+
+        {/* AI 이미지 생성 타일 */}
+        {canAdd && (
+          <button
+            type="button"
+            onClick={() => setAiOpen(true)}
+            className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl flex flex-col items-center justify-center gap-1
+                       transition-colors hover:bg-black/5"
+            style={{
+              border: "1px solid var(--color-edge)",
+              background: "transparent",
+            }}
+            aria-label="AI 이미지 생성"
+          >
+            <Sparkle className="h-5 w-5 text-ink" />
+            <span className="text-xs font-medium text-ink-soft">AI 생성</span>
+          </button>
+        )}
       </div>
+
+      {/* AI 이미지 생성 모달 */}
+      {aiOpen && (
+        <AiImageGenerator
+          imageCount={images.length}
+          maxImages={maxImages}
+          onSelect={handleAiSelect}
+          onClose={() => setAiOpen(false)}
+        />
+      )}
     </div>
   );
 }

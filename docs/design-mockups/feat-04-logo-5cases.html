@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Imchef 로고 마크 시안 5개</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:       #141414;
+    --ink-soft:  #565656;
+    --ink-faint: #9a9a9a;
+    --base:      #ffffff;
+    --line:      rgba(20,20,20,0.13);
+    --edge:      rgba(20,20,20,0.85);
+    --accent:    #141414;
+    --ff:        "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--ff);
+    background: var(--base);
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgba(20,20,20,0.028) 0px,
+      rgba(20,20,20,0.028) 1px,
+      transparent 1px,
+      transparent 42px
+    );
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 48px 24px 80px;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-title {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .page-title h1 {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+  .page-title h2 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .page-title p {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 2px;
+    max-width: 1200px;
+    margin: 0 auto;
+    border: 1px solid var(--edge);
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--base);
+    border: 1px solid var(--edge);
+    padding: 36px 28px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    margin: -1px; /* collapse borders */
+  }
+
+  .card-label {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .card-num {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+  }
+  .card-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .card-desc {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+    line-height: 1.5;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+
+  /* ── (a) 대형 마크 ── */
+  .mark-large {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    height: 120px;
+    background: rgba(20,20,20,0.018);
+  }
+  .mark-large svg {
+    width: 80px;
+    height: 80px;
+    color: var(--ink);
+  }
+
+  /* ── (b) 소형 식별성 ── */
+  .sizes-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .size-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .size-item svg {
+    color: var(--ink);
+    display: block;
+  }
+  .size-px {
+    font-size: 9px;
+    color: var(--ink-faint);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── (c) 헤더 lockup ── */
+  .header-lockup {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--line);
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(22px);
+    border-radius: 2px;
+    width: fit-content;
+  }
+  .header-lockup svg {
+    width: 26px;
+    height: 26px;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+  .wordmark {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .wordmark .accent {
+    color: var(--accent);
+    font-weight: 800;
+  }
+
+  /* ── (d) 파비콘 ── */
+  .favicon-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .favicon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .favicon-box {
+    background: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .favicon-box.sz32 { width: 32px; height: 32px; }
+  .favicon-box.sz16 { width: 16px; height: 16px; }
+  .favicon-box svg { color: #ffffff; }
+
+  /* ── RAW CODE ── */
+  .raw-section {
+    max-width: 1200px;
+    margin: 64px auto 0;
+    border: 1px solid var(--edge);
+  }
+  .raw-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--edge);
+    background: rgba(20,20,20,0.03);
+  }
+  .raw-header span {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .raw-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 0;
+  }
+  .raw-item {
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 20px;
+  }
+  .raw-item:last-child { border-right: none; }
+  .raw-item h4 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+  }
+  pre {
+    font-family: "Menlo", "Monaco", "Courier New", monospace;
+    font-size: 10.5px;
+    line-height: 1.7;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-break: break-all;
+    background: rgba(20,20,20,0.025);
+    padding: 12px;
+    border-radius: 2px;
+    border: 1px solid var(--line);
+    tab-size: 2;
+  }
+
+  /* ── DIVIDER ── */
+  .row-divider {
+    width: 100%;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* 5번째 카드 그리드 내 full-width */
+  @media (min-width: 700px) {
+    .card:nth-child(5) {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ PAGE TITLE ═══ -->
+<header class="page-title">
+  <h1>Imchef · Brand Mark</h1>
+  <h2>로고 마크 시안 5개</h2>
+  <p>
+    viewBox 0 0 24 24 · stroke="currentColor" · strokeLinecap/Linejoin="round" · 흑백 라인<br />
+    각 시안: (a) 대형 · (b) 18px/26px 소형 식별성 · (c) 헤더 lockup · (d) 파비콘 32/16px
+  </p>
+</header>
+
+<!-- ═══ COMPARISON GRID ═══ -->
+<div class="grid">
+
+  <!-- ══════════════════════════════════════════
+       시안 1 — Pot (냄비 + 김)
+  ═══════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-label">
+      <span class="card-num">시안 01</span>
+      <div>
+        <div class="card-name">Pot — 냄비 + 김</div>
+        <div class="card-desc">뚜껑 달린 소스팬 + 2줄 스팀. 손잡이 실루엣이 돋보기와 완전히 다름.</div>
+      </div>
+    </div>
+
+    <!-- (a) 대형 -->
+    <div>
+      <div class="section-label">(a) 대형 마크</div>
+      <div class="mark-large">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+             stroke-linecap="round" stroke-linejoin="round">
+          <!-- 냄비 본체 -->
+          <path d="M5 11 C5 10.45 5.45 10 6 10 L18 10 C18.55 10 19 10.45 19 11 L19 17 C19 17.55 18.55 18 18 18 L6 18 C5.45 18 5 17.55 5 17 Z" />
+          <!-- 뚜껑 -->
+          <path d="M4 10 L20 10" />
+          <path d="M9 10 L9 9 C9 8.45 9.45 8 10 8 L14 8 C14.55 8 15 8.45 15 9 L15 10" />
+          <!-- 뚜껑 손잡이 (작은 돌출) -->
+          <path d="M11 8 L11 7 L13 7 L13 8" />
+          <!-- 왼쪽 손잡이 -->
+          <path d="M5 13 L3 13" />
+          <!-- 오른쪽 손잡이 -->
+          <path d="M19 13 L21 13" />
+          <!-- 김 (steam) -->
+          <path d="M9 5.5 C9 4.5 10 4.5 10 3.5" />
+          <path d="M13 5.5 C13 4.5 14 4.5 14 3.5" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- (b) 소형 -->
+    <div>
+      <div class="section-label">(b) 소형 식별성</div>
+      <div class="sizes-row">
+        <div class="size-item">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 11 C5 10.45 5.45 10 6 10 L18 10 C18.55 10 19 10.45 19 11 L19 17 C19 17.55 18.55 18 18 18 L6 18 C5.45 18 5 17.55 5 17 Z" />
+            <path d="M4 10 L20 10" />
+            <path d="M9 10 L9 9 C9 8.45 9.45 8 10 8 L14 8 C14.55 8 15 8.45 15 9 L15 10" />
+            <path d="M11 8 L11 7 L13 7 L13 8" />
+            <path d="M5 13 L3 13" />
+            <path d="M19 13 L21 13" />
+            <path d="M9 5.5 C9 4.5 10 4.5 10 3.5" />
+            <path d="M13 5.5 C13 4.5 14 4.5 14 3.5" />
+          </svg>
+          <span class="size-px">26px</span>
+        </div>
+        <div class="size-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 11 C5 10.45 5.45 10 6 10 L18 10 C18.55 10 19 10.45 19 11 L19 17 C19 17.55 18.55 18 18 18 L6 18 C5.45 18 5 17.55 5 17 Z" />
+            <path d="M4 10 L20 10" />
+            <path d="M9 10 L9 9 C9 8.45 9.45 8 10 8 L14 8 C14.55 8 15 8.45 15 9 L15 10" />
+            <path d="M11 8 L11 7 L13 7 L13 8" />
+            <path d="M5 13 L3 13" />
+            <path d="M19 13 L21 13" />
+            <path d="M9 5.5 C9 4.5 10 4.5 10 3.5" />
+            <path d="M13 5.5 C13 4.5 14 4.5 14 3.5" />
+          </svg>
+          <span class="size-px">18px</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- (c) 헤더 lockup -->
+    <div>
+      <div class="section-label">(c) 헤더 lockup</div>
+      <div class="header-lockup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 11 C5 10.45 5.45 10 6 10 L18 10 C18.55 10 19 10.45 19 11 L19 17 C19 17.55 18.55 18 18 18 L6 18 C5.45 18 5 17.55 5 17 Z" />
+          <path d="M4 10 L20 10" />
+          <path d="M9 10 L9 9 C9 8.45 9.45 8 10 8 L14 8 C14.55 8 15 8.45 15 9 L15 10" />
+          <path d="M11 8 L11 7 L13 7 L13 8" />
+          <path d="M5 13 L3 13" />
+          <path d="M19 13 L21 13" />
+          <path d="M9 5.5 C9 4.5 10 4.5 10 3.5" />
+          <path d="M13 5.5 C13 4.5 14 4.5 14 3.5" />
+        </svg>
+        <span class="wordmark">Im<span class="accent">chef</span></span>
+      </div>
+    </div>
+
+    <!-- (d) 파비콘 -->
+    <div>
+      <div class="section-label">(d) 파비콘 미리보기</div>
+      <div class="favicon-row">
+        <div class="favicon-item">
+          <div class="favicon-box sz32">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 11 C5 10.45 5.45 10 6 10 L18 10 C18.55 10 19 10.45 19 11 L19 17 C19 17.55 18.55 18 18 18 L6 18 C5.45 18 5 17.55 5 17 Z" />
+              <path d="M4 10 L20 10" />
+              <path d="M9 10 L9 8.5 L15 8.5 L15 10" />
+              <path d="M5 14 L3 14" />
+              <path d="M19 14 L21 14" />
+              <path d="M10 6.5 C10 5.5 11 5.5 11 4.5" />
+              <path d="M14 6.5 C14 5.5 15 5.5 15 4.5" />
+            </svg>
+          </div>
+          <span class="size-px">32px</span>
+        </div>
+        <div class="favicon-item">
+          <div class="favicon-box sz16">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 11 C5 10.45 5.45 10 6 10 L18 10 C18.55 10 19 10.45 19 11 L19 17 C19 17.55 18.55 18 18 18 L6 18 C5.45 18 5 17.55 5 17 Z" />
+              <path d="M4 10 L20 10" />
+              <path d="M9 10 L9 8.5 L15 8.5 L15 10" />
+              <path d="M5 14 L3 14" />
+              <path d="M19 14 L21 14" />
+            </svg>
+          </div>
+          <span class="size-px">16px</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       시안 2 — Toque (셰프 모자)
+  ═══════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-label">
+      <span class="card-num">시안 02</span>
+      <div>
+        <div class="card-name">Toque — 셰프 모자</div>
+        <div class="card-desc">"I'm chef" 정체성 직결. 둥근 탑 + 챙 띠 2줄 구조. 소형에서 챙 생략.</div>
+      </div>
+    </div>
+
+    <!-- (a) -->
+    <div>
+      <div class="section-label">(a) 대형 마크</div>
+      <div class="mark-large">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+             stroke-linecap="round" stroke-linejoin="round">
+          <!-- 모자 탑 (둥근 상단) -->
+          <path d="M7 13 C7 13 6 12 6 10 C6 7.24 8.69 5 12 5 C15.31 5 18 7.24 18 10 C18 12 17 13 17 13 Z" />
+          <!-- 첫 번째 밴드 -->
+          <line x1="6.5" y1="13" x2="17.5" y2="13" />
+          <!-- 두 번째 밴드 -->
+          <line x1="6" y1="15" x2="18" y2="15" />
+          <!-- 챙 (하단 직사각형) -->
+          <path d="M5 15 L5 17 C5 17.55 5.45 18 6 18 L18 18 C18.55 18 19 17.55 19 17 L19 15" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- (b) -->
+    <div>
+      <div class="section-label">(b) 소형 식별성</div>
+      <div class="sizes-row">
+        <div class="size-item">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 13 C7 13 6 12 6 10 C6 7.24 8.69 5 12 5 C15.31 5 18 7.24 18 10 C18 12 17 13 17 13 Z" />
+            <line x1="6.5" y1="13" x2="17.5" y2="13" />
+            <line x1="6" y1="15" x2="18" y2="15" />
+            <path d="M5 15 L5 17 C5 17.55 5.45 18 6 18 L18 18 C18.55 18 19 17.55 19 17 L19 15" />
+          </svg>
+          <span class="size-px">26px</span>
+        </div>
+        <div class="size-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 13 C7 13 6 12 6 10 C6 7.24 8.69 5 12 5 C15.31 5 18 7.24 18 10 C18 12 17 13 17 13 Z" />
+            <line x1="6.5" y1="13" x2="17.5" y2="13" />
+            <line x1="6" y1="15" x2="18" y2="15" />
+            <path d="M5 15 L5 17 C5 17.55 5.45 18 6 18 L18 18 C18.55 18 19 17.55 19 17 L19 15" />
+          </svg>
+          <span class="size-px">18px</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- (c) -->
+    <div>
+      <div class="section-label">(c) 헤더 lockup</div>
+      <div class="header-lockup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 13 C7 13 6 12 6 10 C6 7.24 8.69 5 12 5 C15.31 5 18 7.24 18 10 C18 12 17 13 17 13 Z" />
+          <line x1="6.5" y1="13" x2="17.5" y2="13" />
+          <line x1="6" y1="15" x2="18" y2="15" />
+          <path d="M5 15 L5 17 C5 17.55 5.45 18 6 18 L18 18 C18.55 18 19 17.55 19 17 L19 15" />
+        </svg>
+        <span class="wordmark">Im<span class="accent">chef</span></span>
+      </div>
+    </div>
+
+    <!-- (d) -->
+    <div>
+      <div class="section-label">(d) 파비콘 미리보기</div>
+      <div class="favicon-row">
+        <div class="favicon-item">
+          <div class="favicon-box sz32">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 13 C7 13 6 12 6 10 C6 7.24 8.69 5 12 5 C15.31 5 18 7.24 18 10 C18 12 17 13 17 13 Z" />
+              <line x1="6" y1="13" x2="18" y2="13" />
+              <path d="M5 15 L5 17 C5 17.55 5.45 18 6 18 L18 18 C18.55 18 19 17.55 19 17 L19 15 L5 15 Z" />
+            </svg>
+          </div>
+          <span class="size-px">32px</span>
+        </div>
+        <div class="favicon-item">
+          <div class="favicon-box sz16">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 13 C7 13 6 12 6 10 C6 7.24 8.69 5 12 5 C15.31 5 18 7.24 18 10 C18 12 17 13 17 13 Z" />
+              <line x1="6" y1="13" x2="18" y2="13" />
+              <path d="M5 15 L5 17 C5 17.55 5.45 18 6 18 L18 18 C18.55 18 19 17.55 19 17 L19 15 L5 15 Z" />
+            </svg>
+          </div>
+          <span class="size-px">16px</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       시안 3 — Spatula (뒤집개)
+  ═══════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-label">
+      <span class="card-num">시안 03</span>
+      <div>
+        <div class="card-name">Spatula — 뒤집개</div>
+        <div class="card-desc">넓은 헤드 + 사각 구멍 + 사선 손잡이. 헤드 형태로 돋보기와 즉시 구분.</div>
+      </div>
+    </div>
+
+    <!-- (a) -->
+    <div>
+      <div class="section-label">(a) 대형 마크</div>
+      <div class="mark-large">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+             stroke-linecap="round" stroke-linejoin="round">
+          <!-- 헤드 (직사각 패들) -->
+          <rect x="5" y="4" width="10" height="8" rx="1.5" />
+          <!-- 헤드 구멍 2개 (뒤집개 특징) -->
+          <rect x="7" y="6" width="2.5" height="2" rx="0.5" />
+          <rect x="10.5" y="6" width="2.5" height="2" rx="0.5" />
+          <!-- 목(neck) -->
+          <line x1="10" y1="12" x2="10" y2="14" />
+          <!-- 손잡이 (사선) -->
+          <path d="M10 14 L18 21" />
+          <!-- 손잡이 끝 그립 -->
+          <line x1="16.5" y1="19.5" x2="19.5" y2="16.5" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- (b) -->
+    <div>
+      <div class="section-label">(b) 소형 식별성</div>
+      <div class="sizes-row">
+        <div class="size-item">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="4" width="10" height="8" rx="1.5" />
+            <rect x="7" y="6" width="2.5" height="2" rx="0.5" />
+            <rect x="10.5" y="6" width="2.5" height="2" rx="0.5" />
+            <line x1="10" y1="12" x2="10" y2="14" />
+            <path d="M10 14 L18 21" />
+            <line x1="16.5" y1="19.5" x2="19.5" y2="16.5" />
+          </svg>
+          <span class="size-px">26px</span>
+        </div>
+        <div class="size-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="4" width="10" height="8" rx="1.5" />
+            <rect x="7" y="6" width="2.5" height="2" rx="0.5" />
+            <rect x="10.5" y="6" width="2.5" height="2" rx="0.5" />
+            <line x1="10" y1="12" x2="10" y2="14" />
+            <path d="M10 14 L18 21" />
+            <line x1="16.5" y1="19.5" x2="19.5" y2="16.5" />
+          </svg>
+          <span class="size-px">18px</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- (c) -->
+    <div>
+      <div class="section-label">(c) 헤더 lockup</div>
+      <div class="header-lockup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="4" width="10" height="8" rx="1.5" />
+          <rect x="7" y="6" width="2.5" height="2" rx="0.5" />
+          <rect x="10.5" y="6" width="2.5" height="2" rx="0.5" />
+          <line x1="10" y1="12" x2="10" y2="14" />
+          <path d="M10 14 L18 21" />
+          <line x1="16.5" y1="19.5" x2="19.5" y2="16.5" />
+        </svg>
+        <span class="wordmark">Im<span class="accent">chef</span></span>
+      </div>
+    </div>
+
+    <!-- (d) -->
+    <div>
+      <div class="section-label">(d) 파비콘 미리보기</div>
+      <div class="favicon-row">
+        <div class="favicon-item">
+          <div class="favicon-box sz32">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="4" width="10" height="8" rx="1.5" />
+              <rect x="7.5" y="6.5" width="2" height="1.5" rx="0.4" />
+              <rect x="10.5" y="6.5" width="2" height="1.5" rx="0.4" />
+              <path d="M10 12 L18 21" />
+            </svg>
+          </div>
+          <span class="size-px">32px</span>
+        </div>
+        <div class="favicon-item">
+          <div class="favicon-box sz16">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="4" width="10" height="8" rx="1.5" />
+              <path d="M10 12 L18 21" />
+            </svg>
+          </div>
+          <span class="size-px">16px</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       시안 4 — Cutlery (숟가락 + 포크)
+  ═══════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-label">
+      <span class="card-num">시안 04</span>
+      <div>
+        <div class="card-name">Cutlery — 숟가락 + 포크</div>
+        <div class="card-desc">식사/공유 상징. 좌우 대칭 배치, 소형에서 2도구 실루엣 명확히 분리.</div>
+      </div>
+    </div>
+
+    <!-- (a) -->
+    <div>
+      <div class="section-label">(a) 대형 마크</div>
+      <div class="mark-large">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+             stroke-linecap="round" stroke-linejoin="round">
+          <!-- 포크 (왼쪽) -->
+          <line x1="8" y1="20" x2="8" y2="13" />
+          <!-- 포크 커브 연결 -->
+          <path d="M8 13 C8 11.5 6.5 11 6 9.5 L6 4" />
+          <line x1="8" y1="4" x2="8" y2="9" />
+          <line x1="10" y1="4" x2="10" y2="9" />
+          <path d="M10 9 C10 11 8 11.5 8 13" />
+          <!-- 숟가락 (오른쪽) -->
+          <line x1="16" y1="20" x2="16" y2="12" />
+          <ellipse cx="16" cy="8.5" rx="3" ry="4" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- (b) -->
+    <div>
+      <div class="section-label">(b) 소형 식별성</div>
+      <div class="sizes-row">
+        <div class="size-item">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="20" x2="8" y2="13" />
+            <path d="M8 13 C8 11.5 6.5 11 6 9.5 L6 4" />
+            <line x1="8" y1="4" x2="8" y2="9" />
+            <line x1="10" y1="4" x2="10" y2="9" />
+            <path d="M10 9 C10 11 8 11.5 8 13" />
+            <line x1="16" y1="20" x2="16" y2="12" />
+            <ellipse cx="16" cy="8.5" rx="3" ry="4" />
+          </svg>
+          <span class="size-px">26px</span>
+        </div>
+        <div class="size-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="20" x2="8" y2="13" />
+            <path d="M8 13 C8 11.5 6.5 11 6 9.5 L6 4" />
+            <line x1="8" y1="4" x2="8" y2="9" />
+            <line x1="10" y1="4" x2="10" y2="9" />
+            <path d="M10 9 C10 11 8 11.5 8 13" />
+            <line x1="16" y1="20" x2="16" y2="12" />
+            <ellipse cx="16" cy="8.5" rx="3" ry="4" />
+          </svg>
+          <span class="size-px">18px</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- (c) -->
+    <div>
+      <div class="section-label">(c) 헤더 lockup</div>
+      <div class="header-lockup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="20" x2="8" y2="13" />
+          <path d="M8 13 C8 11.5 6.5 11 6 9.5 L6 4" />
+          <line x1="8" y1="4" x2="8" y2="9" />
+          <line x1="10" y1="4" x2="10" y2="9" />
+          <path d="M10 9 C10 11 8 11.5 8 13" />
+          <line x1="16" y1="20" x2="16" y2="12" />
+          <ellipse cx="16" cy="8.5" rx="3" ry="4" />
+        </svg>
+        <span class="wordmark">Im<span class="accent">chef</span></span>
+      </div>
+    </div>
+
+    <!-- (d) -->
+    <div>
+      <div class="section-label">(d) 파비콘 미리보기</div>
+      <div class="favicon-row">
+        <div class="favicon-item">
+          <div class="favicon-box sz32">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="8" y1="20" x2="8" y2="13" />
+              <path d="M8 13 C8 11.5 6.5 11 6 9.5 L6 4" />
+              <line x1="8" y1="4" x2="8" y2="9" />
+              <line x1="10" y1="4" x2="10" y2="9" />
+              <path d="M10 9 C10 11 8 11.5 8 13" />
+              <line x1="16" y1="20" x2="16" y2="12" />
+              <ellipse cx="16" cy="8.5" rx="3" ry="4" />
+            </svg>
+          </div>
+          <span class="size-px">32px</span>
+        </div>
+        <div class="favicon-item">
+          <div class="favicon-box sz16">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="8" y1="20" x2="8" y2="13" />
+              <path d="M8 13 C8 11 6 11 6 9 L6 4" />
+              <line x1="10" y1="4" x2="10" y2="9" />
+              <path d="M10 9 C10 11 8 11 8 13" />
+              <line x1="16" y1="20" x2="16" y2="12" />
+              <ellipse cx="16" cy="8.5" rx="3" ry="4" />
+            </svg>
+          </div>
+          <span class="size-px">16px</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       시안 5 — Monogram IC (I + 셰프모자 합성)
+  ═══════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-label">
+      <span class="card-num">시안 05</span>
+      <div>
+        <div class="card-name">Monogram — "I" + 셰프모자 합성</div>
+        <div class="card-desc">"I'm chef"의 I자 획 위에 셰프모자 형태가 얹힌 레터마크. 파비콘 단독성 최강.</div>
+      </div>
+    </div>
+
+    <!-- (a) -->
+    <div>
+      <div class="section-label">(a) 대형 마크</div>
+      <div class="mark-large">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+             stroke-linecap="round" stroke-linejoin="round">
+          <!-- 모자 탑: 아치형, I자 상단에서 시작 -->
+          <path d="M9 10 C9 10 8.5 9 8.5 7.5 C8.5 5.5 10.07 4 12 4 C13.93 4 15.5 5.5 15.5 7.5 C15.5 9 15 10 15 10 Z" />
+          <!-- 모자 밴드 -->
+          <line x1="8.5" y1="10" x2="15.5" y2="10" />
+          <!-- I자 세로 획 (모자 챙에서 아래로) -->
+          <line x1="12" y1="11" x2="12" y2="19" />
+          <!-- I자 상단 세리프 -->
+          <line x1="9.5" y1="11" x2="14.5" y2="11" />
+          <!-- I자 하단 세리프 -->
+          <line x1="9.5" y1="19" x2="14.5" y2="19" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- (b) -->
+    <div>
+      <div class="section-label">(b) 소형 식별성</div>
+      <div class="sizes-row">
+        <div class="size-item">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 10 C9 10 8.5 9 8.5 7.5 C8.5 5.5 10.07 4 12 4 C13.93 4 15.5 5.5 15.5 7.5 C15.5 9 15 10 15 10 Z" />
+            <line x1="8.5" y1="10" x2="15.5" y2="10" />
+            <line x1="12" y1="11" x2="12" y2="19" />
+            <line x1="9.5" y1="11" x2="14.5" y2="11" />
+            <line x1="9.5" y1="19" x2="14.5" y2="19" />
+          </svg>
+          <span class="size-px">26px</span>
+        </div>
+        <div class="size-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 10 C9 10 8.5 9 8.5 7.5 C8.5 5.5 10.07 4 12 4 C13.93 4 15.5 5.5 15.5 7.5 C15.5 9 15 10 15 10 Z" />
+            <line x1="8.5" y1="10" x2="15.5" y2="10" />
+            <line x1="12" y1="11" x2="12" y2="19" />
+            <line x1="9.5" y1="11" x2="14.5" y2="11" />
+            <line x1="9.5" y1="19" x2="14.5" y2="19" />
+          </svg>
+          <span class="size-px">18px</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- (c) -->
+    <div>
+      <div class="section-label">(c) 헤더 lockup</div>
+      <div class="header-lockup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 10 C9 10 8.5 9 8.5 7.5 C8.5 5.5 10.07 4 12 4 C13.93 4 15.5 5.5 15.5 7.5 C15.5 9 15 10 15 10 Z" />
+          <line x1="8.5" y1="10" x2="15.5" y2="10" />
+          <line x1="12" y1="11" x2="12" y2="19" />
+          <line x1="9.5" y1="11" x2="14.5" y2="11" />
+          <line x1="9.5" y1="19" x2="14.5" y2="19" />
+        </svg>
+        <span class="wordmark">Im<span class="accent">chef</span></span>
+      </div>
+    </div>
+
+    <!-- (d) -->
+    <div>
+      <div class="section-label">(d) 파비콘 미리보기</div>
+      <div class="favicon-row">
+        <div class="favicon-item">
+          <div class="favicon-box sz32">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 10 C9 10 8.5 9 8.5 7.5 C8.5 5.5 10.07 4 12 4 C13.93 4 15.5 5.5 15.5 7.5 C15.5 9 15 10 15 10 Z" />
+              <line x1="8" y1="10" x2="16" y2="10" />
+              <line x1="12" y1="11" x2="12" y2="19" />
+              <line x1="9.5" y1="11" x2="14.5" y2="11" />
+              <line x1="9.5" y1="19" x2="14.5" y2="19" />
+            </svg>
+          </div>
+          <span class="size-px">32px</span>
+        </div>
+        <div class="favicon-item">
+          <div class="favicon-box sz16">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 10 C9 10 8.5 9 8.5 7.5 C8.5 5.5 10.07 4 12 4 C13.93 4 15.5 5.5 15.5 7.5 C15.5 9 15 10 15 10 Z" />
+              <line x1="8" y1="10" x2="16" y2="10" />
+              <line x1="12" y1="11" x2="12" y2="19" />
+              <line x1="9.5" y1="11" x2="14.5" y2="11" />
+              <line x1="9.5" y1="19" x2="14.5" y2="19" />
+            </svg>
+          </div>
+          <span class="size-px">16px</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /grid -->
+
+
+<!-- ═══ RAW SVG CODE ═══ -->
+<section class="raw-section">
+  <div class="raw-header">
+    <span>Raw SVG — icons.tsx 이식용</span>
+  </div>
+  <div class="raw-body">
+
+    <div class="raw-item">
+      <h4>시안 01 · Pot (냄비+김)</h4>
+      <pre>&lt;!-- Pot: 냄비 + 김(steam) --&gt;
+&lt;!-- viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" strokeWidth={1.7}
+     strokeLinecap="round" strokeLinejoin="round" --&gt;
+&lt;path d="M5 11 C5 10.45 5.45 10 6 10
+         L18 10 C18.55 10 19 10.45 19 11
+         L19 17 C19 17.55 18.55 18 18 18
+         L6 18 C5.45 18 5 17.55 5 17 Z" /&gt;
+&lt;path d="M4 10 L20 10" /&gt;
+&lt;path d="M9 10 L9 9 C9 8.45 9.45 8 10 8
+         L14 8 C14.55 8 15 8.45 15 9 L15 10" /&gt;
+&lt;path d="M11 8 L11 7 L13 7 L13 8" /&gt;
+&lt;path d="M5 13 L3 13" /&gt;
+&lt;path d="M19 13 L21 13" /&gt;
+&lt;path d="M9 5.5 C9 4.5 10 4.5 10 3.5" /&gt;
+&lt;path d="M13 5.5 C13 4.5 14 4.5 14 3.5" /&gt;</pre>
+    </div>
+
+    <div class="raw-item">
+      <h4>시안 02 · Toque (셰프 모자)</h4>
+      <pre>&lt;!-- Toque: 셰프 모자 --&gt;
+&lt;!-- viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" strokeWidth={1.7}
+     strokeLinecap="round" strokeLinejoin="round" --&gt;
+&lt;path d="M7 13 C7 13 6 12 6 10
+         C6 7.24 8.69 5 12 5
+         C15.31 5 18 7.24 18 10
+         C18 12 17 13 17 13 Z" /&gt;
+&lt;line x1="6.5" y1="13" x2="17.5" y2="13" /&gt;
+&lt;line x1="6" y1="15" x2="18" y2="15" /&gt;
+&lt;path d="M5 15 L5 17
+         C5 17.55 5.45 18 6 18
+         L18 18 C18.55 18 19 17.55 19 17
+         L19 15" /&gt;</pre>
+    </div>
+
+    <div class="raw-item">
+      <h4>시안 03 · Spatula (뒤집개)</h4>
+      <pre>&lt;!-- Spatula: 뒤집개 --&gt;
+&lt;!-- viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" strokeWidth={1.7}
+     strokeLinecap="round" strokeLinejoin="round" --&gt;
+&lt;rect x="5" y="4" width="10" height="8" rx="1.5" /&gt;
+&lt;rect x="7" y="6" width="2.5" height="2" rx="0.5" /&gt;
+&lt;rect x="10.5" y="6" width="2.5" height="2" rx="0.5" /&gt;
+&lt;line x1="10" y1="12" x2="10" y2="14" /&gt;
+&lt;path d="M10 14 L18 21" /&gt;
+&lt;line x1="16.5" y1="19.5" x2="19.5" y2="16.5" /&gt;</pre>
+    </div>
+
+    <div class="raw-item">
+      <h4>시안 04 · Cutlery (숟가락+포크)</h4>
+      <pre>&lt;!-- Cutlery: 포크(좌) + 숟가락(우) --&gt;
+&lt;!-- viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" strokeWidth={1.7}
+     strokeLinecap="round" strokeLinejoin="round" --&gt;
+&lt;!-- 포크 --&gt;
+&lt;line x1="8" y1="20" x2="8" y2="13" /&gt;
+&lt;path d="M8 13 C8 11.5 6.5 11 6 9.5 L6 4" /&gt;
+&lt;line x1="8" y1="4" x2="8" y2="9" /&gt;
+&lt;line x1="10" y1="4" x2="10" y2="9" /&gt;
+&lt;path d="M10 9 C10 11 8 11.5 8 13" /&gt;
+&lt;!-- 숟가락 --&gt;
+&lt;line x1="16" y1="20" x2="16" y2="12" /&gt;
+&lt;ellipse cx="16" cy="8.5" rx="3" ry="4" /&gt;</pre>
+    </div>
+
+    <div class="raw-item">
+      <h4>시안 05 · Monogram (I + 셰프모자)</h4>
+      <pre>&lt;!-- Monogram: "I" 레터마크 + 셰프모자 --&gt;
+&lt;!-- viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" strokeWidth={1.7}
+     strokeLinecap="round" strokeLinejoin="round" --&gt;
+&lt;!-- 모자 탑 (아치) --&gt;
+&lt;path d="M9 10 C9 10 8.5 9 8.5 7.5
+         C8.5 5.5 10.07 4 12 4
+         C13.93 4 15.5 5.5 15.5 7.5
+         C15.5 9 15 10 15 10 Z" /&gt;
+&lt;!-- 모자 밴드 --&gt;
+&lt;line x1="8.5" y1="10" x2="15.5" y2="10" /&gt;
+&lt;!-- I자 세로 획 --&gt;
+&lt;line x1="12" y1="11" x2="12" y2="19" /&gt;
+&lt;!-- I자 상단 세리프 --&gt;
+&lt;line x1="9.5" y1="11" x2="14.5" y2="11" /&gt;
+&lt;!-- I자 하단 세리프 --&gt;
+&lt;line x1="9.5" y1="19" x2="14.5" y2="19" /&gt;</pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer style="text-align:center; margin-top:48px; font-size:11px; color:var(--ink-faint); letter-spacing:0.08em;">
+  Imchef Brand Mark Concepts · feat-04 · viewBox 0 0 24 24 · stroke="currentColor" · Pretendard
+</footer>
+
+</body>
+</html>

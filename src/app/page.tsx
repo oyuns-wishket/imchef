@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import FeedPost from "@/components/FeedPost";
 import { useSearch } from "@/contexts/SearchContext";
-import { Search } from "@/components/icons";
+import Spinner from "@/components/ui/Spinner";
+import Skeleton from "@/components/ui/Skeleton";
 
 interface Recipe {
   id: string;
@@ -24,12 +25,10 @@ export default function Home() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(false);
   const { open: searchOpen, query, setQuery } = useSearch();
-  const searchRef = useRef<HTMLInputElement>(null);
 
-  // Focus the field as it slides in; clear the query when it slides away.
+  // Clear the query when search closes.
   useEffect(() => {
-    if (searchOpen) searchRef.current?.focus();
-    else setQuery("");
+    if (!searchOpen) setQuery("");
   }, [searchOpen, setQuery]);
 
   useEffect(() => {
@@ -83,31 +82,14 @@ export default function Home() {
 
   return (
     <main className="max-w-[520px] mx-auto pt-3">
-      {/* Search — slides in when 돋보기 is tapped */}
-      <div
-        className={`px-3 overflow-hidden transition-all duration-300 ease-out ${
-          searchOpen ? "max-h-20 opacity-100 mb-4" : "max-h-0 opacity-0 mb-0"
-        }`}
-      >
-        <div className="relative pt-1">
-          <Search className="absolute left-4 top-1/2 translate-y-[2px] w-4 h-4 text-ink-faint" />
-          <input
-            ref={searchRef}
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="레시피, 재료, 셰프 검색"
-            className="input-field pl-11 rounded-full"
-          />
-        </div>
-      </div>
-
       {loading ? (
-        <div className="px-3 space-y-5">
+        <div role="status" aria-busy="true" aria-label="불러오는 중" className="px-3 space-y-5">
           {Array.from({ length: 2 }).map((_, i) => (
             <div key={i}>
-              <div className="aspect-square rounded-[20px] glass animate-pulse" />
-              <div className="h-3.5 w-2/3 rounded bg-white/50 animate-pulse mt-3" />
+              <Skeleton variant="block" aspectRatio="1 / 1" className="rounded-[20px]" />
+              <div className="mt-3">
+                <Skeleton variant="line" width="66%" height={14} />
+              </div>
             </div>
           ))}
         </div>
@@ -149,8 +131,15 @@ export default function Home() {
 
           {!searching && nextCursor && (
             <div className="flex justify-center mt-2 mb-4">
-              <button onClick={loadMore} disabled={loadingMore} className="btn-secondary">
-                {loadingMore ? "불러오는 중…" : "더 보기"}
+              <button onClick={loadMore} disabled={loadingMore} className="btn-secondary inline-flex items-center gap-2">
+                {loadingMore ? (
+                  <>
+                    <Spinner size="sm" label="불러오는 중" />
+                    불러오는 중…
+                  </>
+                ) : (
+                  "더 보기"
+                )}
               </button>
             </div>
           )}

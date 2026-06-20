@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import IngredientInput from "./IngredientInput";
 import StepInput from "./StepInput";
 import ImageUploader from "./ImageUploader";
+import Spinner from "@/components/ui/Spinner";
+import UrlRecipeImport, { type ImportedRecipe } from "./UrlRecipeImport";
 
 interface Ingredient {
   name: string;
@@ -58,6 +60,55 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
   const [referenceUrl, setReferenceUrl] = useState(initialData?.referenceUrl || "");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // ── prefill 병합 전략 (명세 §7) ──────────────────────────────────────────
+  function isFormEmpty(): boolean {
+    return (
+      !title.trim() &&
+      !description.trim() &&
+      servings === 1 &&
+      cookTime === "" &&
+      difficulty === "normal" &&
+      ingredients.every((ing) => !ing.name.trim()) &&
+      steps.every((s) => !s.content.trim()) &&
+      !referenceUrl.trim()
+    );
+  }
+
+  function applyPrefill(recipe: ImportedRecipe) {
+    setTitle(recipe.title || title);
+    setDescription(recipe.description || description);
+    if (recipe.servings && recipe.servings !== 1) setServings(recipe.servings);
+    if (recipe.cookTime !== null) setCookTime(recipe.cookTime);
+    if (recipe.difficulty) setDifficulty(recipe.difficulty);
+    if (recipe.ingredients.length > 0) {
+      setIngredients(
+        recipe.ingredients.map((ing) => ({
+          name: ing.name,
+          amount: ing.amount,
+          unit: ing.unit || "g",
+        }))
+      );
+    }
+    if (recipe.steps.length > 0) {
+      setSteps(recipe.steps.map((s) => ({ content: s.content })));
+    }
+    // referenceUrl: 비어있을 때만 주입
+    if (!referenceUrl.trim() && recipe.referenceUrl) {
+      setReferenceUrl(recipe.referenceUrl);
+    }
+  }
+
+  function handleUrlImportResult(recipe: ImportedRecipe) {
+    if (isFormEmpty()) {
+      applyPrefill(recipe);
+    } else {
+      const ok = window.confirm(
+        "AI 결과로 폼을 채우면 입력하신 내용을 덮어쓸 수 있어요. 진행할까요?"
+      );
+      if (ok) applyPrefill(recipe);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -116,6 +167,11 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+      {/* URL→AI 레시피 자동생성 — 신규 등록 흐름에서만 노출 (수정 모드 제외) */}
+      {!isEditing && (
+        <UrlRecipeImport onResult={handleUrlImportResult} />
+      )}
+
       <ImageUploader images={imageUrls} onChange={setImageUrls} />
 
       <div>
@@ -234,7 +290,8 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
         <button type="button" onClick={() => router.back()} className="btn-secondary">
           취소
         </button>
-        <button type="submit" className="btn-primary" disabled={loading}>
+        <button type="submit" className="btn-primary inline-flex items-center gap-2" disabled={loading}>
+          {loading && <Spinner size="sm" label="저장 중" />}
           {loading ? "저장 중..." : isEditing ? "수정하기" : "레시피 등록"}
         </button>
       </div>
