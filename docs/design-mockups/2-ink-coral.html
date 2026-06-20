@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Im chef — Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  /* ── RESET ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── TOKENS ── */
+  :root {
+    --ink:    #161616;
+    --coral:  #FF5A4D;
+    --white:  #FFFFFF;
+    --gray-0: #F5F5F3;
+    --gray-1: #E8E8E6;
+    --gray-2: #AEAEAC;
+    --gray-3: #6B6B69;
+    --hair:   1px solid #E8E8E6;
+    --font-body: 'Pretendard', sans-serif;
+    --font-display: 'DM Serif Display', serif;
+  }
+
+  /* ── STAGE ── */
+  body {
+    font-family: var(--font-body);
+    background: var(--gray-0);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 48px 32px;
+  }
+
+  .stage {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  .phone-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .phone-label {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gray-2);
+  }
+
+  /* ── PHONE FRAME ── */
+  .phone {
+    width: 390px;
+    height: 860px;
+    background: var(--white);
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.07),
+      0 4px 24px rgba(0,0,0,0.08),
+      0 1px 3px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── SHARED HEADER ── */
+  .phone-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--white);
+    border-bottom: var(--hair);
+    padding: 16px 20px 14px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-shrink: 0;
+  }
+
+  .header-ladle {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .wordmark {
+    font-family: var(--font-display);
+    font-size: 17px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  /* ── SCROLLABLE BODY ── */
+  .phone-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 72px;
+  }
+  .phone-body::-webkit-scrollbar { display: none; }
+
+  /* ── BOTTOM BAR ── */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-top: var(--hair);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 20px;
+    z-index: 30;
+  }
+
+  .bar-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    opacity: 0.35;
+    transition: opacity 0.15s;
+  }
+  .bar-icon.active {
+    opacity: 1;
+    color: var(--coral);
+  }
+
+  /* ══════════════════════════════
+     FRAME A — FEED
+  ══════════════════════════════ */
+
+  .feed-post {
+    border-bottom: var(--hair);
+  }
+
+  /* Post author row */
+  .post-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px 10px;
+  }
+
+  .author-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--gray-1);
+    overflow: hidden;
+    flex-shrink: 0;
+    border: var(--hair);
+  }
+  .author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .author-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  .author-sub {
+    font-size: 11px;
+    color: var(--gray-2);
+    letter-spacing: 0;
+    margin-top: 1px;
+  }
+
+  .post-more {
+    margin-left: auto;
+    color: var(--gray-2);
+    opacity: 0.6;
+    font-size: 18px;
+    line-height: 1;
+    letter-spacing: 2px;
+  }
+
+  /* Image area */
+  .post-image {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: var(--gray-1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .post-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Empty photo state */
+  .post-image.empty {
+    flex-direction: column;
+    gap: 12px;
+    background: var(--gray-0);
+  }
+
+  .empty-icon {
+    color: var(--gray-1);
+  }
+
+  .empty-label {
+    font-size: 12px;
+    color: var(--gray-2);
+    letter-spacing: 0.02em;
+  }
+
+  /* Action row */
+  .post-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px 10px;
+  }
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--ink);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .action-btn svg { flex-shrink: 0; }
+
+  .action-count {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-3);
+    letter-spacing: -0.01em;
+  }
+
+  .action-btn.liked svg { color: var(--coral); }
+  .action-btn.liked .action-count { color: var(--coral); }
+
+  /* Post caption */
+  .post-caption {
+    padding: 0 16px 16px;
+  }
+
+  .post-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    margin-bottom: 3px;
+    line-height: 1.3;
+  }
+
+  .post-nick {
+    font-size: 11.5px;
+    color: var(--gray-2);
+    letter-spacing: 0;
+  }
+
+  /* ══════════════════════════════
+     FRAME B — RECIPE DETAIL
+  ══════════════════════════════ */
+
+  .detail-hero {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--gray-1);
+  }
+
+  .detail-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .detail-body {
+    padding: 20px 20px 0;
+  }
+
+  .detail-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    line-height: 1.25;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+
+  .detail-meta {
+    display: flex;
+    gap: 0;
+    border-top: var(--hair);
+    border-bottom: var(--hair);
+    margin-bottom: 22px;
+  }
+
+  .meta-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+    gap: 3px;
+    border-right: var(--hair);
+  }
+  .meta-item:last-child { border-right: none; }
+
+  .meta-label {
+    font-size: 10px;
+    color: var(--gray-2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .meta-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  /* Section heading */
+  .section-head {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gray-2);
+    margin-bottom: 12px;
+  }
+
+  /* Ingredient list */
+  .ingredient-list {
+    list-style: none;
+    margin-bottom: 24px;
+  }
+
+  .ingredient-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 9px 0;
+    border-bottom: var(--hair);
+    font-size: 13px;
+  }
+
+  .ingr-name {
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .ingr-amount {
+    color: var(--gray-2);
+    font-size: 12px;
+  }
+
+  /* Steps */
+  .steps-list {
+    list-style: none;
+    margin-bottom: 24px;
+  }
+
+  .step-item {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .step-text {
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--gray-3);
+    letter-spacing: -0.01em;
+    flex: 1;
+  }
+
+  /* Reference link */
+  .ref-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0;
+    border-top: var(--hair);
+    margin-bottom: 12px;
+    text-decoration: none;
+  }
+
+  .ref-label {
+    font-size: 12px;
+    color: var(--gray-2);
+  }
+
+  .ref-url {
+    font-size: 12px;
+    color: var(--ink);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ═══════════════════════════ FRAME A — FEED ═══════════════════════════ -->
+  <div class="phone-wrap">
+    <div class="phone" id="phone-feed">
+
+      <!-- Header -->
+      <div class="phone-header">
+        <svg class="header-ladle" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="9" r="6"/>
+          <path d="M14.5 14.5L21 21"/>
+          <path d="M9 3v2M9 13v2M3 9h2M13 9h2"/>
+        </svg>
+        <span class="wordmark">Im chef</span>
+      </div>
+
+      <!-- Feed scroll -->
+      <div class="phone-body">
+
+        <!-- POST 1 — liked -->
+        <div class="feed-post">
+          <div class="post-author">
+            <div class="author-avatar">
+              <img src="https://picsum.photos/seed/avatar11/64/64" alt="셰프1">
+            </div>
+            <div>
+              <div class="author-name">김민준</div>
+              <div class="author-sub">홈셰프 · 3시간 전</div>
+            </div>
+            <span class="post-more">···</span>
+          </div>
+          <div class="post-image">
+            <img src="https://picsum.photos/seed/min2a/780/780" alt="감바스">
+          </div>
+          <div class="post-actions">
+            <button class="action-btn liked">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF5A4D" stroke="#FF5A4D" stroke-width="1.5">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+              <span class="action-count">248</span>
+            </button>
+            <button class="action-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+              </svg>
+              <span class="action-count">공유</span>
+            </button>
+            <button class="action-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <span class="action-count">32</span>
+            </button>
+          </div>
+          <div class="post-caption">
+            <div class="post-title">감바스 알 아히요 — 올리브오일향 가득</div>
+            <div class="post-nick">@minchef_kitchen</div>
+          </div>
+        </div>
+
+        <!-- POST 2 — empty photo state -->
+        <div class="feed-post">
+          <div class="post-author">
+            <div class="author-avatar">
+              <img src="https://picsum.photos/seed/avatar22/64/64" alt="셰프2">
+            </div>
+            <div>
+              <div class="author-name">이소영</div>
+              <div class="author-sub">홈셰프 · 6시간 전</div>
+            </div>
+            <span class="post-more">···</span>
+          </div>
+          <div class="post-image empty">
+            <svg class="empty-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#D4D4D2" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21,15 16,10 5,21"/>
+            </svg>
+            <span class="empty-label">음식 사진이 없어요!</span>
+          </div>
+          <div class="post-actions">
+            <button class="action-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+              <span class="action-count">14</span>
+            </button>
+            <button class="action-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+              </svg>
+              <span class="action-count">공유</span>
+            </button>
+            <button class="action-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <span class="action-count">7</span>
+            </button>
+          </div>
+          <div class="post-caption">
+            <div class="post-title">직접 담근 된장찌개 — 할머니 레시피</div>
+            <div class="post-nick">@soyoung_table</div>
+          </div>
+        </div>
+
+        <!-- POST 3 — partial clip -->
+        <div class="feed-post">
+          <div class="post-author">
+            <div class="author-avatar">
+              <img src="https://picsum.photos/seed/avatar33/64/64" alt="셰프3">
+            </div>
+            <div>
+              <div class="author-name">박재원</div>
+              <div class="author-sub">홈셰프 · 11시간 전</div>
+            </div>
+            <span class="post-more">···</span>
+          </div>
+          <div class="post-image">
+            <img src="https://picsum.photos/seed/min2c/780/780" alt="파스타">
+          </div>
+          <div class="post-actions">
+            <button class="action-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+              <span class="action-count">91</span>
+            </button>
+            <button class="action-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+              </svg>
+              <span class="action-count">공유</span>
+            </button>
+            <button class="action-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <span class="action-count">19</span>
+            </button>
+          </div>
+          <div class="post-caption">
+            <div class="post-title">명란 크림 파스타 — 10분 완성</div>
+            <div class="post-nick">@jaewon_eats</div>
+          </div>
+        </div>
+
+      </div><!-- /phone-body -->
+
+      <!-- Bottom bar -->
+      <div class="bottom-bar">
+        <!-- Search -->
+        <div class="bar-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </div>
+        <!-- Likes — active with coral -->
+        <div class="bar-icon active">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </div>
+        <!-- Activity / paper plane -->
+        <div class="bar-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+        </div>
+        <!-- Profile -->
+        <div class="bar-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+    <div class="phone-label">피드</div>
+  </div>
+
+  <!-- ═══════════════════════════ FRAME B — RECIPE DETAIL ═══════════════════════════ -->
+  <div class="phone-wrap">
+    <div class="phone" id="phone-detail">
+
+      <!-- Header -->
+      <div class="phone-header">
+        <svg class="header-ladle" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="9" r="6"/>
+          <path d="M14.5 14.5L21 21"/>
+          <path d="M9 3v2M9 13v2M3 9h2M13 9h2"/>
+        </svg>
+        <span class="wordmark">Im chef</span>
+      </div>
+
+      <!-- Detail scroll -->
+      <div class="phone-body">
+
+        <!-- Hero image -->
+        <div class="detail-hero">
+          <img src="https://picsum.photos/seed/gambas88/780/585" alt="감바스 알 아히요">
+        </div>
+
+        <div class="detail-body">
+
+          <h1 class="detail-title">감바스 알 아히요</h1>
+
+          <!-- Meta -->
+          <div class="detail-meta">
+            <div class="meta-item">
+              <span class="meta-label">인분</span>
+              <span class="meta-value">2인</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">조리시간</span>
+              <span class="meta-value">25분</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">난이도</span>
+              <span class="meta-value">쉬움</span>
+            </div>
+          </div>
+
+          <!-- Ingredients -->
+          <div class="section-head">재료</div>
+          <ul class="ingredient-list">
+            <li class="ingredient-item">
+              <span class="ingr-name">새우 (중하)</span>
+              <span class="ingr-amount">200 g</span>
+            </li>
+            <li class="ingredient-item">
+              <span class="ingr-name">올리브 오일</span>
+              <span class="ingr-amount">150 ml</span>
+            </li>
+            <li class="ingredient-item">
+              <span class="ingr-name">마늘</span>
+              <span class="ingr-amount">10 쪽</span>
+            </li>
+            <li class="ingredient-item">
+              <span class="ingr-name">건고추 (페페론치노)</span>
+              <span class="ingr-amount">3개</span>
+            </li>
+            <li class="ingredient-item">
+              <span class="ingr-name">소금</span>
+              <span class="ingr-amount">약간</span>
+            </li>
+            <li class="ingredient-item">
+              <span class="ingr-name">파슬리 (생)</span>
+              <span class="ingr-amount">1 줌</span>
+            </li>
+            <li class="ingredient-item">
+              <span class="ingr-name">바게트</span>
+              <span class="ingr-amount">적당량</span>
+            </li>
+          </ul>
+
+          <!-- Steps -->
+          <div class="section-head">조리 순서</div>
+          <ol class="steps-list">
+            <li class="step-item">
+              <div class="step-num">1</div>
+              <div class="step-text">새우는 등쪽 내장을 제거하고 소금물에 가볍게 씻어 물기를 뺍니다.</div>
+            </li>
+            <li class="step-item">
+              <div class="step-num">2</div>
+              <div class="step-text">작은 코코트(또는 무쇠 팬)에 올리브 오일을 담고, 얇게 저민 마늘과 건고추를 넣어 약불에서 향을 냅니다. 마늘이 투명해지면 됩니다.</div>
+            </li>
+            <li class="step-item">
+              <div class="step-num">3</div>
+              <div class="step-text">기름이 보글보글 끓기 시작하면 새우를 넣고 분홍빛이 돌 때까지 2–3분 익힙니다.</div>
+            </li>
+            <li class="step-item">
+              <div class="step-num">4</div>
+              <div class="step-text">소금으로 간을 맞추고 불을 끕니다. 다진 파슬리를 뿌려 향을 더합니다.</div>
+            </li>
+            <li class="step-item">
+              <div class="step-num">5</div>
+              <div class="step-text">바게트를 곁들여 뜨거운 상태로 바로 서빙합니다. 오일을 빵에 찍어 먹으면 더욱 맛있습니다.</div>
+            </li>
+          </ol>
+
+          <!-- Reference -->
+          <div class="section-head">참고 링크</div>
+          <a class="ref-link" href="#" onclick="return false;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#AEAEAC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            <span class="ref-label">출처</span>
+            <span class="ref-url">maangchi.com/recipe/gambas</span>
+          </a>
+
+        </div>
+      </div><!-- /phone-body -->
+
+      <!-- Bottom bar -->
+      <div class="bottom-bar">
+        <div class="bar-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </div>
+        <div class="bar-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </div>
+        <div class="bar-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+        </div>
+        <div class="bar-icon active">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+    <div class="phone-label">레시피 상세</div>
+  </div>
+
+</div><!-- /stage -->
+</body>
+</html>

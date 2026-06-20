@@ -11,16 +11,25 @@ const base = {
   strokeLinejoin: "round" as const,
 };
 
-/** Soup ladle — the imchef mark */
-export function Ladle(props: P) {
+/** Cutlery — fork (left) + spoon (right) vertical pair — the imchef brand mark */
+export function Logo(props: P) {
   return (
     <svg {...base} {...props}>
-      <circle cx="10" cy="10" r="6.5" />
-      <line x1="15.5" y1="15.5" x2="21" y2="21" />
-      <line x1="17" y1="17" x2="20" y2="14" />
+      {/* Fork */}
+      <line x1="8" y1="20" x2="8" y2="13" />
+      <path d="M8 13 C8 11.5 6.5 11 6 9.5 L6 4" />
+      <line x1="8" y1="4" x2="8" y2="9" />
+      <line x1="10" y1="4" x2="10" y2="9" />
+      <path d="M10 9 C10 11 8 11.5 8 13" />
+      {/* Spoon */}
+      <line x1="16" y1="20" x2="16" y2="12" />
+      <ellipse cx="16" cy="8.5" rx="3" ry="4" />
     </svg>
   );
 }
+
+/** @deprecated Use Logo instead. Kept for backward compatibility. */
+export const Ladle = Logo;
 
 export function Heart({ filled, ...props }: P & { filled?: boolean }) {
   return (
@@ -117,6 +126,22 @@ export function LinkIcon(props: P) {
     <svg {...base} {...props}>
       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+  );
+}
+
+export function Sparkle(props: P) {
+  return (
+    <svg {...base} strokeWidth={1.5} {...props}>
+      <path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.3L12 16.5l-6.2 4.5 2.4-7.3L2 9.2h7.6z" />
+    </svg>
+  );
+}
+
+export function Check(props: P) {
+  return (
+    <svg {...base} strokeWidth={2} {...props}>
+      <polyline points="20 6 9 17 4 12" />
     </svg>
   );
 }
