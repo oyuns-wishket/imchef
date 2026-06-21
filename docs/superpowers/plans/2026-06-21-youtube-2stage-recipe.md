@@ -181,6 +181,20 @@ it("재료/순서 0이면 pro 폴백, 그래도 0이면 noContent", async () => 
 - spec §1 자막 제거 → Task 3 ✓
 - spec 비-목표(web 보존) → Task들이 youtube 분기만 수정 ✓
 
-## 스파이크 결과 (Task 0 실행 후 기록)
+## 스파이크 결과 (Task 0 실행 — 2026-06-21)
 
-(여기에 실측 결과 기록 예정)
+**핵심 반전: Vercel AI Gateway로는 영상 이해 불가, @ai-sdk/google 직결이 정답.**
+
+| 방식 | inputTokens | 결과 |
+|---|---|---|
+| Gateway `generateText` + youtube(URL객체) | 577,819 ~ 719,804 | "영상 시청 불가" → 일반 레시피 **환각** |
+| **@ai-sdk/google 직결 + youtube(string, watch형식)** | **12,703** | **영상 실제 분석 성공** (타임스탬프 0:03, 정확한 계량 120g/380ml/2큰술) |
+
+확정 사항:
+- youtube 경로는 **`@ai-sdk/google` 직결**(`GOOGLE_GENERATIVE_AI_API_KEY`). Gateway 아님.
+- file part `data`는 **string URL**(`new URL()` 객체 ❌ → invalid argument).
+- URL은 **watch 형식**으로 정규화(shorts/youtu.be → `watch?v=<id>`).
+- 직결이 Gateway보다 토큰 1/57 → **비용도 훨씬 저렴**.
+- 미인제스트 신호: 응답에 "시청 불가/볼 수 없/재생할 수 없" 포함 → 폴백/실패.
+
+→ Global Constraints 정정: youtube Stage1은 직결, Stage2 구조화는 직결 또는 Gateway 무관(텍스트).
