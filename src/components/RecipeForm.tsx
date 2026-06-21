@@ -7,6 +7,7 @@ import StepInput from "./StepInput";
 import ImageUploader from "./ImageUploader";
 import Spinner from "@/components/ui/Spinner";
 import UrlRecipeImport, { type ImportedRecipe } from "./UrlRecipeImport";
+import { isFormEmpty, buildPrefillPatch, type FormSnapshot } from "@/lib/form-merge";
 
 interface Ingredient {
   name: string;
@@ -61,46 +62,34 @@ export default function RecipeForm({ initialData, recipeId }: Props) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ── prefill 병합 전략 (명세 §7) ──────────────────────────────────────────
-  function isFormEmpty(): boolean {
-    return (
-      !title.trim() &&
-      !description.trim() &&
-      servings === 1 &&
-      cookTime === "" &&
-      difficulty === "normal" &&
-      ingredients.every((ing) => !ing.name.trim()) &&
-      steps.every((s) => !s.content.trim()) &&
-      !referenceUrl.trim()
-    );
+  // ── prefill 병합 전략 (명세 §7, 순수 로직은 @/lib/form-merge) ───────────────
+  function currentSnapshot(): FormSnapshot {
+    return {
+      title,
+      description,
+      servings,
+      cookTime,
+      difficulty,
+      ingredients,
+      steps,
+      referenceUrl,
+    };
   }
 
   function applyPrefill(recipe: ImportedRecipe) {
-    setTitle(recipe.title || title);
-    setDescription(recipe.description || description);
-    if (recipe.servings && recipe.servings !== 1) setServings(recipe.servings);
-    if (recipe.cookTime !== null) setCookTime(recipe.cookTime);
-    if (recipe.difficulty) setDifficulty(recipe.difficulty);
-    if (recipe.ingredients.length > 0) {
-      setIngredients(
-        recipe.ingredients.map((ing) => ({
-          name: ing.name,
-          amount: ing.amount,
-          unit: ing.unit || "g",
-        }))
-      );
-    }
-    if (recipe.steps.length > 0) {
-      setSteps(recipe.steps.map((s) => ({ content: s.content })));
-    }
-    // referenceUrl: 비어있을 때만 주입
-    if (!referenceUrl.trim() && recipe.referenceUrl) {
-      setReferenceUrl(recipe.referenceUrl);
-    }
+    const patch = buildPrefillPatch(currentSnapshot(), recipe);
+    if (patch.title !== undefined) setTitle(patch.title);
+    if (patch.description !== undefined) setDescription(patch.description);
+    if (patch.servings !== undefined) setServings(patch.servings);
+    if (patch.cookTime !== undefined) setCookTime(patch.cookTime);
+    if (patch.difficulty !== undefined) setDifficulty(patch.difficulty);
+    if (patch.ingredients !== undefined) setIngredients(patch.ingredients);
+    if (patch.steps !== undefined) setSteps(patch.steps);
+    if (patch.referenceUrl !== undefined) setReferenceUrl(patch.referenceUrl);
   }
 
   function handleUrlImportResult(recipe: ImportedRecipe) {
-    if (isFormEmpty()) {
+    if (isFormEmpty(currentSnapshot())) {
       applyPrefill(recipe);
     } else {
       const ok = window.confirm(
