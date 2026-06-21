@@ -42,6 +42,25 @@ describe("handleRecipeFromUrl", () => {
     expect(json.meta.sourceType).toBe("web");
   });
 
+  it("youtube 추출 정상 → 200 + sourceType=youtube", async () => {
+    const deps: RecipeRouteDeps = {
+      getUserId: async () => "u1",
+      extract: async () => ({
+        ...okResult,
+        sourceType: "youtube" as const,
+        ingestion: { method: "youtube-vision" as const, inputTokens: 12000 },
+      }),
+    };
+    const res = await handleRecipeFromUrl(
+      mkReq({ url: "https://youtube.com/shorts/PILBBlFEmLg" }),
+      deps
+    );
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.meta.sourceType).toBe("youtube");
+    expect(json.recipe.ingredients.length).toBeGreaterThan(0);
+  });
+
   it("미인증 → 401, extract 미호출", async () => {
     const extract = vi.fn();
     const res = await handleRecipeFromUrl(mkReq({ url: "https://blog.example/x" }), {
