@@ -4,11 +4,12 @@ import { z } from "zod/v4";
 import { AiError } from "./errors";
 import { assertAiCredentials } from "./auth";
 import { withRetry } from "./retry";
+import { type FetchLike } from "./extract/youtube";
 import {
-  parseYoutubeVideoId,
-  fetchYoutubeTranscript,
-  type FetchLike,
-} from "./extract/youtube";
+  extractRecipeTextFromVideo,
+  defaultVisionGenerate,
+  type VisionGenerate,
+} from "./extract/youtube-vision";
 import {
   fetchArticle,
   serializeRecipeJsonLd,
@@ -115,6 +116,8 @@ export interface GenerateObjectResultLite {
 export interface ExtractDeps {
   generate: (input: { messages: { role: "user"; content: UserContentPart[] }[] }) => Promise<GenerateObjectResultLite>;
   fetcher: FetchLike;
+  /** Stage 1: 영상 직접 분석(@ai-sdk/google 직결). */
+  vision: VisionGenerate;
 }
 
 const rawFetch: RawFetch = (url, init) =>
@@ -124,6 +127,7 @@ const defaultFetcher: FetchLike = createGuardedFetcher(rawFetch);
 
 export const defaultExtractDeps: ExtractDeps = {
   fetcher: defaultFetcher,
+  vision: defaultVisionGenerate,
   generate: async ({ messages }) => {
     const { object, usage } = await generateObject({
       model: GEMINI_RECIPE_MODEL,
@@ -163,33 +167,52 @@ export function computeConfidence(recipe: AiRecipe): number {
 
 // ─── 입력 정규화: 콘텐츠 → 텍스트(또는 영상 폴백) ──────────────────────────────
 
+/** Stage 1 모델 순서: flash로 시도 후 부실하면 pro 폴백(spec §4). */
+const VISION_MODELS = ["gemini-2.5-flash", "gemini-2.5-pro"] as const;
+
 /**
- * 유튜브 자막을 텍스트로 추출한다. 자막이 없으면(비공개/봇차단/지역잠금) noContent로
- * 정직하게 실패시킨다. 영상 직접전달 폴백은 SDK 계약상 동작하지 않아(URL 문자열은
- * base64로 오해석, watch 페이지는 mp4 아님) 폐기했다 — 환각 추출보다 명시적 실패가 안전.
+ * YouTube 2단계 파이프라인: Stage 1(영상→자연어, @ai-sdk/google 직결) →
+ * Stage 2(generateObject 구조화). flash로 시도해 재료/순서가 비면 pro로 1회 폴백한다.
+ * 모든 시도가 실패하면 null(호출측이 noContent 처리) — 환각 저장을 차단한다.
  */
-async function buildYoutubeInput(url: string, deps: ExtractDeps): Promise<UserContentPart[]> {
-  const videoId = parseYoutubeVideoId(url);
-  const transcript = videoId
-    ? await fetchYoutubeTranscript(videoId, { fetcher: deps.fetcher }).catch(() => "")
-    : "";
+async function runYoutubeVision(
+  url: string,
+  deps: ExtractDeps
+): Promise<ExtractRecipeResult | null> {
+  for (const model of VISION_MODELS) {
+    const vision = await extractRecipeTextFromVideo(url, { generate: deps.vision, model });
+    if (!vision.ingested) continue; // 영상 미인제스트(시청 불가) → 다음 모델
 
-  if (!transcript.trim()) {
-    throw new AiError(
-      "noContent",
-      "유튜브 자막을 추출하지 못했습니다(자막 비공개/봇차단/지역잠금 가능)."
+    const content: UserContentPart[] = [
+      {
+        type: "text",
+        text: `다음은 요리 영상을 분석한 내용입니다. 레시피로 구조화해주세요.\n\n${vision.text.slice(
+          0,
+          MAX_SOURCE_CHARS
+        )}`,
+      },
+    ];
+    const { object } = await withRetry(() =>
+      deps.generate({ messages: [{ role: "user", content }] })
     );
-  }
+    const recipe = postProcessRecipe(object as RawRecipe) as AiRecipe;
 
-  return [
-    {
-      type: "text",
-      text: `다음은 유튜브 요리 영상의 자막입니다. 레시피를 추출해주세요.\n\n${transcript.slice(
-        0,
-        MAX_SOURCE_CHARS
-      )}`,
-    },
-  ];
+    if (recipe.ingredients.length > 0 && recipe.steps.length > 0) {
+      console.log(
+        `[ai/recipe] method=youtube-vision model=${model} inputTokens=${vision.inputTokens}`
+      );
+      return {
+        recipe,
+        sourceType: "youtube",
+        confidence: computeConfidence(recipe),
+        partial: isPartial(recipe),
+        missingFields: computeMissingFields(recipe),
+        ingestion: { method: "youtube-vision", inputTokens: vision.inputTokens },
+      };
+    }
+    // 재료/순서 부실 → 다음 모델(pro) 재시도
+  }
+  return null;
 }
 
 function buildWebContent(article: ArticleContent): UserContentPart[] {
@@ -218,7 +241,7 @@ export function jsonLdFastPath(article: ArticleContent): AiRecipe | null {
 
 // ─── 핵심 추출 함수 ───────────────────────────────────────────────────────────
 
-export type ExtractMethod = "jsonld" | "transcript" | "web-text";
+export type ExtractMethod = "jsonld" | "youtube-vision" | "web-text";
 
 export interface ExtractRecipeResult {
   recipe: AiRecipe;
@@ -242,43 +265,44 @@ export async function extractRecipeFromUrl(
   const sourceType = classifyUrl(url);
   if (!sourceType) throw new AiError("unsupported", "미지원 URL 유형");
 
-  // 1) 입력 정규화(자막/본문 사전추출). 유튜브 자막 실패는 buildYoutubeInput에서 noContent.
-  let content: UserContentPart[];
-  let method: ExtractMethod;
+  // YouTube: 2단계(Vision→Structure). 영상을 직접 보고 구조화. 실패 시 noContent.
   if (sourceType === "youtube") {
-    content = await buildYoutubeInput(url, deps);
-    method = "transcript";
-  } else {
-    const article = await fetchArticle(url, { fetcher: deps.fetcher });
-
-    // web fast-path: 구조화 데이터(JSON-LD)가 완전하면 모델 호출 없이 결정론적 변환.
-    const fast = jsonLdFastPath(article);
-    if (fast) {
-      console.log("[ai/recipe] method=jsonld (model bypass)");
-      return {
-        recipe: fast,
-        sourceType,
-        confidence: computeConfidence(fast),
-        partial: isPartial(fast),
-        missingFields: computeMissingFields(fast),
-        ingestion: { method: "jsonld", inputTokens: null },
-      };
+    const result = await runYoutubeVision(url, deps);
+    if (!result) {
+      throw new AiError(
+        "noContent",
+        "영상에서 레시피를 찾지 못했습니다(영상 비공개/분석 실패)."
+      );
     }
-    content = buildWebContent(article);
-    method = "web-text";
+    return result;
   }
 
-  // 2) 추출(일시 오류 재시도)
+  // Web: 본문/JSON-LD 텍스트 추출 후 generateObject.
+  const article = await fetchArticle(url, { fetcher: deps.fetcher });
+
+  // web fast-path: 구조화 데이터(JSON-LD)가 완전하면 모델 호출 없이 결정론적 변환.
+  const fast = jsonLdFastPath(article);
+  if (fast) {
+    console.log("[ai/recipe] method=jsonld (model bypass)");
+    return {
+      recipe: fast,
+      sourceType,
+      confidence: computeConfidence(fast),
+      partial: isPartial(fast),
+      missingFields: computeMissingFields(fast),
+      ingestion: { method: "jsonld", inputTokens: null },
+    };
+  }
+
+  const content = buildWebContent(article);
   const { object, usage } = await withRetry(() =>
     deps.generate({ messages: [{ role: "user", content }] })
   );
   const inputTokens = usage?.inputTokens ?? null;
-  console.log(`[ai/recipe] method=${method} inputTokens=${inputTokens}`);
+  console.log(`[ai/recipe] method=web-text inputTokens=${inputTokens}`);
 
-  // 3) 후처리(완성도 보정)
   const recipe = postProcessRecipe(object as RawRecipe) as AiRecipe;
 
-  // 4) 콘텐츠 부족 판정
   const allEmpty =
     !recipe.title.trim() && recipe.ingredients.length === 0 && recipe.steps.length === 0;
   if (allEmpty) throw new AiError("noContent", "레시피 콘텐츠 부족");
@@ -289,6 +313,6 @@ export async function extractRecipeFromUrl(
     confidence: computeConfidence(recipe),
     partial: isPartial(recipe),
     missingFields: computeMissingFields(recipe),
-    ingestion: { method, inputTokens },
+    ingestion: { method: "web-text", inputTokens },
   };
 }
