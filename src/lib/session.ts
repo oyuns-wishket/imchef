@@ -15,5 +15,7 @@ export const sessionOptions: SessionOptions = {
 };
 
 declare module "iron-session" {
+  // iron-session 세션 타입 보강(모듈 augmentation 표준 패턴).
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface IronSessionData extends SessionData {}
 }

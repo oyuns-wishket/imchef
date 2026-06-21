@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { formatMissingFields } from "@/lib/form-merge";
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 
@@ -52,6 +53,8 @@ export default function UrlRecipeImport({ onResult }: Props) {
   // 단계 텍스트 타이머 (analyzing 중에만)
   useEffect(() => {
     if (status === "analyzing") {
+      // 분석 진입 시 단계 텍스트 리셋(상태 전이에 따른 의도된 초기화).
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStageIndex(0);
       stageTimer.current = setInterval(() => {
         setStageIndex((i) => Math.min(i + 1, STAGES.length - 1));
@@ -216,16 +219,7 @@ export default function UrlRecipeImport({ onResult }: Props) {
             <p className="url-import-partial-head">일부만 자동 채웠어요</p>
             {partialNotice.length > 0 && (
               <p className="url-import-partial-sub">
-                {partialNotice
-                  .map((f) =>
-                    f === "ingredients"
-                      ? "재료"
-                      : f === "steps"
-                      ? "조리순서"
-                      : f
-                  )
-                  .join(", ")}{" "}
-                항목을 직접 입력해주세요
+                {formatMissingFields(partialNotice)} 항목을 직접 입력해주세요
               </p>
             )}
           </div>
